@@ -1,6 +1,11 @@
 module Nido
-    ( run
+    ( Nido.run
     ) where
 
+import Concumon
+
 run :: IO ()
-run = putStrLn ("Corriendo Nido")
+run = do
+	putStrLn ("Corriendo Nido")
+	putStrLn "Creando concumones"
+	Concumon.run
