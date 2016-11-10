@@ -12,5 +12,5 @@ run cantJugadores connectionChan = do
 	putStrLn ("Cant jugadores: " ++ (show cantJugadores))
 	forever $ do
 		putStrLn ("Logueando nuevo jugador.")
-		threadDelay	5000000
+		threadDelay	1000000
 		writeChan connectionChan "Hola, entre. Soy jugador nuevo"

@@ -14,7 +14,7 @@ main = do
 	let yDim = 50
 	let tiempoMovConcumon = 5
 	let cantJugadores = 100
-	let maxJugadores = 10
+	let maxJugadores = 3
 	let maxConcumones = 8
 
 	putStrLn("Parametros: ")

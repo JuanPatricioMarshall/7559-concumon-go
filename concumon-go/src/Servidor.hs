@@ -13,11 +13,10 @@ run cantJugadores connectionChan movesChan jugadoresSem = do
 	putStrLn ("Cant jugadores: " ++ (show cantJugadores))
 	putStrLn ("Agregando jugadores al juego.")
 	forever $ do
-		-- TODO: Leer datos de jugador de pipe
-		line <- readChan connectionChan
 		waitQSem jugadoresSem
+		line <- readChan connectionChan
 		putStrLn line
 		putStrLn ("Agregando nuevo jugador.")
 		idJugador <- forkIO(Jugador.run movesChan jugadoresSem)
-		threadDelay	5000000
-	putStrLn "Finalizando Servidor"
+		putStrLn "Se agrego un nuevo jugador"
+	putStrLn "Finalizando servidor"
