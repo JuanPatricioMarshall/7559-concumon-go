@@ -6,8 +6,19 @@ module Concumon
 import Control.Concurrent
 
 
-run :: Int -> Chan movimiento -> IO ()
-run tiempoMov movesChan = do
+run :: Int -> Chan String -> IO ()
+run tiempoMov mapaChan = do
 	putStrLn ("Corriendo Concumon")
-	putStrLn ("Tiempo de movimiento: " ++ show(tiempoMov))
+	concumonSem <- newQSem 0
+
+	-- TODO: Mandar a mapa el id y el semaforo del concumon
+
+	writeChan mapaChan "Agregando concumon a Mapa"
+
+	-- TODO: waitQSem concumonSem
+	threadDelay	1000000
+	putStrLn ("Soy un concumon en el mapa")
+	threadDelay	10000000
+	putStrLn ("Finalizando concumon")
 	
+
