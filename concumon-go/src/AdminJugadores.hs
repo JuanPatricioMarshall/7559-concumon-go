@@ -5,12 +5,13 @@ module AdminJugadores
 import Control.Concurrent
 import Control.Monad
 
-run :: Int -> IO ()
+run :: Int -> Chan String -> IO ()
 -- Hacer logueo de los Jugadores en un loop
-run cantJugadores = do
+run cantJugadores connectionChan = do
 	putStrLn ("Corriendo AdminJugadores")
 	putStrLn ("Cant jugadores: " ++ (show cantJugadores))
 	forever $ do
 		putStrLn ("Logueando nuevo jugador.")
 		threadDelay	5000000
+		writeChan connectionChan "Hola, entre. Soy jugador nuevo"
 		--TODO: Escribir datos de jugador en pipe

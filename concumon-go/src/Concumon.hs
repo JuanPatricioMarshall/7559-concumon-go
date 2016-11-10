@@ -2,8 +2,12 @@ module Concumon
     ( run
     ) where
 
-run :: Int -> IO ()
-run tiempoMov = do
+
+import Control.Concurrent
+
+
+run :: Int -> Chan movimiento -> IO ()
+run tiempoMov movesChan = do
 	putStrLn ("Corriendo Concumon")
 	putStrLn ("Tiempo de movimiento: " ++ show(tiempoMov))
 	

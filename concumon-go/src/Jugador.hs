@@ -2,6 +2,9 @@ module Jugador
     ( run
     ) where
 
-run :: IO ()
-run = do
+import Control.Concurrent
+
+
+run :: Chan movimiento ->  IO ()
+run movesChan = do
 	putStrLn ("Corriendo Jugador")

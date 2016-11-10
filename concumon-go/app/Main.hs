@@ -26,10 +26,13 @@ main = do
 	putStrLn("Cantidad maxima de concumones en mapa: " ++ show(maxConcumones))
 	putStrLn("")
 
-	idAdminJugadores <- forkIO (AdminJugadores.run cantJugadores)
-	idServidor <- forkIO (Servidor.run cantJugadores)
-	idNido <- forkIO (Nido.run tiempoMovConcumon)
-	idMapa <- forkIO (Mapa.run xDim yDim)
+	connectionChan <- newChan
+	movesChan <- newChan
+
+	idAdminJugadores <- forkIO (AdminJugadores.run cantJugadores connectionChan)
+	idServidor <- forkIO (Servidor.run cantJugadores connectionChan movesChan)
+	idNido <- forkIO (Nido.run tiempoMovConcumon movesChan)
+	idMapa <- forkIO (Mapa.run xDim yDim movesChan)
 	idSysadmin <- forkIO (Sysadmin.run)
 
 
