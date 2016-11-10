@@ -6,8 +6,8 @@ module Concumon
 import Control.Concurrent
 
 
-run :: Int -> Chan String -> IO ()
-run tiempoMov mapaChan = do
+run :: QSem -> Int -> Chan String -> IO ()
+run maxConcumonesSem tiempoMov mapaChan = do
 	putStrLn ("Corriendo Concumon")
 	concumonSem <- newQSem 0
 
@@ -20,5 +20,6 @@ run tiempoMov mapaChan = do
 	putStrLn ("Soy un concumon en el mapa")
 	threadDelay	10000000
 	putStrLn ("Finalizando concumon")
+	signalQSem maxConcumonesSem
 	
 
