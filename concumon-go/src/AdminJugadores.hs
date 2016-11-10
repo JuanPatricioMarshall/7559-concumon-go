@@ -14,4 +14,3 @@ run cantJugadores connectionChan = do
 		putStrLn ("Logueando nuevo jugador.")
 		threadDelay	5000000
 		writeChan connectionChan "Hola, entre. Soy jugador nuevo"
-		--TODO: Escribir datos de jugador en pipe

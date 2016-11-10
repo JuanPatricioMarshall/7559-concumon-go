@@ -5,6 +5,9 @@ module Jugador
 import Control.Concurrent
 
 
-run :: Chan movimiento ->  IO ()
-run movesChan = do
+run :: Chan movimiento -> QSem -> IO ()
+run movesChan jugadoresSem = do
 	putStrLn ("Corriendo Jugador")
+	threadDelay	5000000
+	putStrLn ("Termine de jugar")
+	signalQSem jugadoresSem
