@@ -33,5 +33,6 @@ main = do
 	idSysadmin <- forkIO (Sysadmin.run)
 
 
-	threadDelay	10000000
+	putStrLn("Presione Enter para finalizar ejecucion")
+	getLine
 	putStrLn("finalizando ejecucion")

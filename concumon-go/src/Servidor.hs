@@ -3,6 +3,7 @@ module Servidor
     ) where
 
 import Control.Concurrent
+import Control.Monad
 
 import Jugador
 
@@ -11,8 +12,9 @@ run cantJugadores = do
 	putStrLn ("Corriendo Servidor")
 	putStrLn ("Cant jugadores: " ++ (show cantJugadores))
 	putStrLn ("Agregando jugadores al juego.")
-	
-	idJugador <- forkIO(Jugador.run)
-
-	threadDelay	5000000
+	forever $ do
+		-- TODO: Leer datos de jugador de pipe
+		putStrLn ("Agregando nuevo jugador.")
+		idJugador <- forkIO(Jugador.run)
+		threadDelay	5000000
 	putStrLn "Finalizando Servidor"
