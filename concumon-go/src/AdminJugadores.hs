@@ -1,7 +1,10 @@
 module AdminJugadores
-    ( run
+    ( AdminJugadores.run
     ) where
 
-run :: IO ()
--- Hacer fork de los Jugadores en un while
-run = putStrLn ("Corriendo AdminJugadores")
+run :: Int -> IO ()
+-- Hacer logueo de los Jugadores en un while
+run cantJugadores = do
+	putStrLn ("Corriendo AdminJugadores")
+	putStrLn ("Cant jugadores: " ++ (show cantJugadores))
+	putStrLn ("Logueando jugadores.")

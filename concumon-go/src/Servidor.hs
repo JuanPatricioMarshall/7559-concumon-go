@@ -1,6 +1,12 @@
 module Servidor
-    ( run
+    ( Servidor.run
     ) where
 
-run :: IO ()
-run = putStrLn ("Corriendo Servidor")
+import Jugador
+
+run :: Int -> IO ()
+run cantJugadores = do
+	putStrLn ("Corriendo Servidor")
+	putStrLn ("Cant jugadores: " ++ (show cantJugadores))
+	putStrLn ("Agregando jugadores al juego.")
+	Jugador.run

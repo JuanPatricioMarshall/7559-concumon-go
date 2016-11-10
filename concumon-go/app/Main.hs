@@ -1,9 +1,10 @@
 module Main where
 
-import Jugador
-import Concumon
+import AdminJugadores
+import Servidor
 
 main :: IO ()
 main = do
-	Jugador.run
-	Concumon.run
+	let cantJugadores = 5
+	AdminJugadores.run cantJugadores
+	Servidor.run cantJugadores
