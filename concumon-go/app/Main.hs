@@ -1,6 +1,9 @@
 module Main where
 
-import Lib
+import Jugador
+import Concumon
 
 main :: IO ()
-main = someFunc
+main = do
+	Jugador.run
+	Concumon.run
