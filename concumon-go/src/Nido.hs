@@ -4,8 +4,8 @@ module Nido
 
 import Concumon
 
-run :: IO ()
-run = do
+run :: Int -> IO ()
+run tiempoMovConcumon = do
 	putStrLn ("Corriendo Nido")
 	putStrLn "Creando concumones"
-	Concumon.run
+	Concumon.run tiempoMovConcumon

@@ -3,4 +3,5 @@ module Jugador
     ) where
 
 run :: IO ()
-run = putStrLn ("Corriendo Jugador")
+run = do
+	putStrLn ("Corriendo Jugador")
