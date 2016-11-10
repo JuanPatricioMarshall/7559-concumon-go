@@ -8,15 +8,13 @@ import Control.Monad
 import Jugador
 
 run :: Int -> Chan String -> Chan movimiento -> QSem ->  IO ()
-run cantJugadores connectionChan movesChan jugadoresSem = do
+run cantJugadores connectionChan movesChan maxJugadoresSem = do
 	putStrLn ("Corriendo Servidor")
-	putStrLn ("Cant jugadores: " ++ (show cantJugadores))
-	putStrLn ("Agregando jugadores al juego.")
 	forever $ do
-		waitQSem jugadoresSem
+		waitQSem maxJugadoresSem
 		line <- readChan connectionChan
 		putStrLn line
 		putStrLn ("Agregando nuevo jugador.")
-		idJugador <- forkIO(Jugador.run movesChan jugadoresSem)
+		idJugador <- forkIO(Jugador.run movesChan maxJugadoresSem)
 		putStrLn "Se agrego un nuevo jugador"
 	putStrLn "Finalizando servidor"

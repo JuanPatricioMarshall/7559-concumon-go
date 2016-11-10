@@ -28,10 +28,10 @@ main = do
 
 	connectionChan <- newChan
 	movesChan <- newChan
-	jugadoresSem <- newQSem maxJugadores
+	maxJugadoresSem <- newQSem maxJugadores
 
 	idAdminJugadores <- forkIO (AdminJugadores.run cantJugadores connectionChan)
-	idServidor <- forkIO (Servidor.run cantJugadores connectionChan movesChan jugadoresSem)
+	idServidor <- forkIO (Servidor.run cantJugadores connectionChan movesChan maxJugadoresSem)
 	idNido <- forkIO (Nido.run tiempoMovConcumon movesChan)
 	idMapa <- forkIO (Mapa.run xDim yDim movesChan)
 	idSysadmin <- forkIO (Sysadmin.run)
