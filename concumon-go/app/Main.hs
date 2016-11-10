@@ -1,5 +1,7 @@
 module Main where
 
+import Control.Concurrent
+
 import AdminJugadores
 import Servidor
 import Nido
@@ -24,8 +26,12 @@ main = do
 	putStrLn("Cantidad maxima de concumones en mapa: " ++ show(maxConcumones))
 	putStrLn("")
 
-	AdminJugadores.run cantJugadores
-	Servidor.run cantJugadores
-	Nido.run tiempoMovConcumon
-	Mapa.run xDim yDim
-	Sysadmin.run
+	idAdminJugadores <- forkIO (AdminJugadores.run cantJugadores)
+	idServidor <- forkIO (Servidor.run cantJugadores)
+	idNido <- forkIO (Nido.run tiempoMovConcumon)
+	idMapa <- forkIO (Mapa.run xDim yDim)
+	idSysadmin <- forkIO (Sysadmin.run)
+
+
+	threadDelay	10000000
+	putStrLn("finalizando ejecucion")
