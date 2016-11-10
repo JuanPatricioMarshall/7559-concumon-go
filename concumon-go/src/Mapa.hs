@@ -3,11 +3,17 @@ module Mapa
     ) where
 
 import Control.Concurrent
+import Control.Monad
 
 
-run :: Int -> Int -> Chan movimiento -> IO ()
-run x y movesChan = do
+run :: Int -> Int -> Chan String -> IO ()
+run x y mapaChan = do
 	putStrLn ("Corriendo Mapa")
 	putStrLn ("Dimensiones: [" ++ show(x) ++ "x" ++ show(y) ++ "]")
-	putStrLn ("Mapa esperando acciones")
-	
+	forever $ do
+		putStrLn ("Mapa esperando acciones")
+		accion <- readChan mapaChan
+		putStrLn accion
+
+		--TODO: signalQSem del que mando la accion
+			
