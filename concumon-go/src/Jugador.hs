@@ -13,8 +13,8 @@ run mapaChan maxJugadoresSem = do
 	-- TODO: Obtener id del jugador
 
 	let id = 1
-	let tuple = (False, True, id)
-	writeChan mapaChan tuple
+	let accionCrearJugador = (False, True, id)
+	writeChan mapaChan accionCrearJugador
 
 	-- TODO: waitQSem jugadoresSem
 

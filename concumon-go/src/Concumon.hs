@@ -13,7 +13,8 @@ run maxConcumonesSem tiempoMov mapaChan = do
 
 	-- TODO: Obtener id del concumon
 	let id = 1
-	writeChan mapaChan (False, False, id)
+	let accionCrearConcumon = (False, False, id)
+	writeChan mapaChan accionCrearConcumon
 
 	-- TODO: waitQSem concumonSem
 	threadDelay	1000000
