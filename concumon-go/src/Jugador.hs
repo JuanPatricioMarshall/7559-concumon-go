@@ -3,16 +3,18 @@ module Jugador
     ) where
 
 import Control.Concurrent
+import Data.Tuple
 
-
-run :: Chan String -> QSem -> IO ()
+run :: Chan (Bool, Bool, Int) -> QSem -> IO ()
 run mapaChan maxJugadoresSem = do
 	putStrLn ("Corriendo Jugador")
 	jugadoresSem <- newQSem 0
 
-	-- TODO: Mandar a mapa el id y el semaforo del jugador
+	-- TODO: Obtener id del jugador
 
-	writeChan mapaChan "Agregando jugador a Mapa"
+	let id = 1
+	let tuple = (False, True, id)
+	writeChan mapaChan tuple
 
 	-- TODO: waitQSem jugadoresSem
 

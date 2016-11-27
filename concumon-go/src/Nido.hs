@@ -7,7 +7,7 @@ import Control.Monad
 
 import Concumon
 
-run :: QSem -> Int -> Chan String -> IO ()
+run :: QSem -> Int -> Chan (Bool, Bool, Int) -> IO ()
 run maxConcumonesSem tiempoMovConcumon mapaChan = do
 	putStrLn ("Corriendo Nido")
 	-- TODO: Ver si esta bien con forever, o usar otra cosa

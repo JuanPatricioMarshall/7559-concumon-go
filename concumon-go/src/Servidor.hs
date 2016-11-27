@@ -7,7 +7,7 @@ import Control.Monad
 
 import Jugador
 
-run :: Int -> Chan String -> Chan String -> QSem ->  IO ()
+run :: Int -> Chan String -> Chan (Bool, Bool, Int) -> QSem ->  IO ()
 run cantJugadores connectionChan mapaChan maxJugadoresSem = do
 	putStrLn ("Corriendo Servidor")
 	forever $ do
