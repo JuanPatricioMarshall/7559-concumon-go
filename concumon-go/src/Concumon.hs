@@ -6,14 +6,15 @@ module Concumon
 import Control.Concurrent
 
 
-run :: QSem -> Int -> Chan String -> IO ()
+run :: QSem -> Int -> Chan (Bool, Bool, Int) -> IO ()
 run maxConcumonesSem tiempoMov mapaChan = do
 	putStrLn ("Corriendo Concumon")
 	concumonSem <- newQSem 0
 
-	-- TODO: Mandar a mapa el id y el semaforo del concumon
-
-	writeChan mapaChan "Agregando concumon a Mapa"
+	-- TODO: Obtener id del concumon
+	let id = 1
+	let accionCrearConcumon = (False, False, id)
+	writeChan mapaChan accionCrearConcumon
 
 	-- TODO: waitQSem concumonSem
 	threadDelay	1000000
