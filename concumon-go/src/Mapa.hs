@@ -11,6 +11,7 @@ run x y mapaChan = do
 	putStrLn ("Corriendo Mapa")
 	putStrLn ("Dimensiones: [" ++ show(x) ++ "x" ++ show(y) ++ "]")
 	forever $ do
+
 		putStrLn ("Mapa esperando acciones")
 		accion <- readChan mapaChan
 		putStrLn accion

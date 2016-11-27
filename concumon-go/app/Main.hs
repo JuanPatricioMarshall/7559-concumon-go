@@ -8,6 +8,10 @@ import Nido
 import Mapa
 import Sysadmin
 
+data Player = Player { id :: String
+                     , position :: Int
+                     } deriving Show
+
 main :: IO ()
 main = do
 	let xDim = 50
@@ -17,6 +21,15 @@ main = do
 	let maxJugadores = 3
 	let maxConcumones = 3
 
+	-- Creo Listas de Jugadores
+	let listaIdJugadoresLibres = take (xDim * yDim) (repeat True)	
+	listaIdJugadoresLibresMVar <- newEmptyMVar
+	putMVar listaIdJugadoresLibresMVar listaIdJugadoresLibres
+
+	let listaPuntajeJugadores = take (xDim * yDim) (repeat 0)
+	listaPuntajeJugadoresMVar <- newEmptyMVar
+	putMVar listaPuntajeJugadoresMVar listaPuntajeJugadores
+
 	putStrLn("Parametros: ")
 	putStrLn("Dimension X: " ++ show(xDim))
 	putStrLn("Dimension Y: " ++ show(yDim))
@@ -24,6 +37,7 @@ main = do
 	putStrLn("Cantidad total de jugadores: " ++ show(cantJugadores))
 	putStrLn("Cantidad maxima de jugadores en mapa: " ++ show(maxJugadores))
 	putStrLn("Cantidad maxima de concumones en mapa: " ++ show(maxConcumones))
+
 	putStrLn("")
 
 	connectionChan <- newChan
@@ -32,12 +46,14 @@ main = do
 	maxConcumonesSem <- newQSem maxConcumones
 
 	idAdminJugadores <- forkIO (AdminJugadores.run cantJugadores connectionChan)
-	idServidor <- forkIO (Servidor.run cantJugadores connectionChan mapaChan maxJugadoresSem)
+	idServidor <- forkIO (Servidor.run cantJugadores connectionChan mapaChan maxJugadoresSem listaIdJugadoresLibresMVar listaPuntajeJugadoresMVar)
 	idNido <- forkIO (Nido.run maxConcumonesSem tiempoMovConcumon mapaChan)
 	idMapa <- forkIO (Mapa.run xDim yDim mapaChan)
-	idSysadmin <- forkIO (Sysadmin.run)
+	idSysadmin <- forkIO (Sysadmin.run listaPuntajeJugadoresMVar)
 
 
 	putStrLn("Presione Enter para finalizar ejecucion")
 	getLine
 	putStrLn("finalizando ejecucion")
+
+
