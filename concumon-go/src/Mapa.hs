@@ -5,6 +5,7 @@ module Mapa
 import Control.Concurrent
 import Control.Monad
 import Data.Tuple
+import UtilList
 
 
 -- mapaChan: (Mover(True) o Crear(False), Jugador(True) o Concumon(False), id)
@@ -28,6 +29,10 @@ run x y mapaChan  listaPuntajeJugadoresMVar = do
 			then do putStrLn ("Creando jugador " ++ show (getId accion))
 			else do putStrLn ("Creando concumon " ++ show (getId accion))
 
+		--Ejemplo De Sumar Puntos
+		--when (esJugador accion) $ updatePoints listaPuntajeJugadoresMVar (getId accion) 10
+
+
 		--TODO: signalQSem del que mando la accion
 
 esMover :: (Bool, Bool, Int) -> Bool
@@ -38,3 +43,11 @@ esJugador (mover, jugador, id) = jugador
 
 getId :: (Bool, Bool, Int) -> Int
 getId (mover, jugador, id) = id
+
+updatePoints :: MVar([Int]) -> Int -> Int -> IO()
+updatePoints mVar index value = do
+	list <- takeMVar mVar
+	let actualPoints = list!!index
+	let newPoints = actualPoints + value
+	let newList = UtilList.safeReplaceElement list index newPoints
+	putMVar mVar newList

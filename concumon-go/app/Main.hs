@@ -22,11 +22,12 @@ main = do
 	let maxConcumones = 3
 
 	-- Creo Listas de Jugadores
-	let listaIdJugadoresLibres = take (xDim * yDim) (repeat True)	
+	let listaIdJugadoresLibres = take (maxJugadores) (repeat True)	
 	listaIdJugadoresLibresMVar <- newEmptyMVar
 	putMVar listaIdJugadoresLibresMVar listaIdJugadoresLibres
 
-	let listaPuntajeJugadores = take (xDim * yDim) (repeat 0)
+	-- Creo Listas de Puntaje de Jugadores
+	let listaPuntajeJugadores = take (maxJugadores) (repeat 0)
 	listaPuntajeJugadoresMVar <- newEmptyMVar
 	putMVar listaPuntajeJugadoresMVar listaPuntajeJugadores
 

@@ -14,8 +14,15 @@ run cantJugadores connectionChan mapaChan maxJugadoresSem listaIdJugadoresLibres
 	forever $ do		
 		waitQSem maxJugadoresSem
 		line <- readChan connectionChan
+
+		-- Actualizo Lista de Jugadores Libres - Asigno ID
+		listaIdJugadoresLibres <- takeMVar listaIdJugadoresLibresMVar
+		let idJugador = UtilList.getIndexOfFirstBoolEqualTo listaIdJugadoresLibres True
+		let newListaIdJugadoresLibres = UtilList.safeReplaceElement listaIdJugadoresLibres idJugador False
+		putMVar listaIdJugadoresLibresMVar newListaIdJugadoresLibres
+
 		putStrLn line
 		putStrLn ("Agregando nuevo jugador.")
-		idJugador <- forkIO(Jugador.run mapaChan maxJugadoresSem listaIdJugadoresLibresMVar)
+		idJugador <- forkIO(Jugador.run mapaChan maxJugadoresSem idJugador listaIdJugadoresLibresMVar)
 		putStrLn "Se agrego un nuevo jugador"
 		putStrLn "Finalizando servidor"

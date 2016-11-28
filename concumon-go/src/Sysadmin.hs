@@ -9,8 +9,8 @@ run :: MVar([Int]) -> IO ()
 run listaPuntajeJugadoresMVar = do
 
      putStrLn ("Corriendo Sysadmin")
-
-    --Ejemplo leer MVar
-    --listaPuntajeJugadores <- readMVar listaPuntajeJugadoresMVar
-    --putStrLn ("Puntaje Jugadores " ++ show(listaPuntajeJugadores))
+     forever $ do
+  		  listaPuntajeJugadores <- readMVar listaPuntajeJugadoresMVar
+   		  putStrLn ("Puntaje Jugadores " ++ show(listaPuntajeJugadores))
+   		  threadDelay	5000000
 		
