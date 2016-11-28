@@ -21,7 +21,7 @@ main = do
 	let maxJugadores = 3
 	let maxConcumones = 3
 
-	-- Creo Listas de Jugadores
+	-- Creo Listas de Jugadores Libres
 	let listaIdJugadoresLibres = take (maxJugadores) (repeat True)	
 	listaIdJugadoresLibresMVar <- newEmptyMVar
 	putMVar listaIdJugadoresLibresMVar listaIdJugadoresLibres
@@ -30,6 +30,11 @@ main = do
 	let listaPuntajeJugadores = take (maxJugadores) (repeat 0)
 	listaPuntajeJugadoresMVar <- newEmptyMVar
 	putMVar listaPuntajeJugadoresMVar listaPuntajeJugadores
+
+	-- Listas de Concumones Libres
+	let listaIdConcumonesLibres = take (maxConcumones) (repeat True)	
+	listaIdConcumonesLibresMvar <- newEmptyMVar
+	putMVar listaIdConcumonesLibresMvar listaIdConcumonesLibres
 
 	putStrLn("Parametros: ")
 	putStrLn("Dimension X: " ++ show(xDim))
@@ -48,7 +53,7 @@ main = do
 
 	idAdminJugadores <- forkIO (AdminJugadores.run cantJugadores connectionChan)
 	idServidor <- forkIO (Servidor.run cantJugadores connectionChan mapaChan maxJugadoresSem listaIdJugadoresLibresMVar)
-	idNido <- forkIO (Nido.run maxConcumonesSem tiempoMovConcumon mapaChan)
+	idNido <- forkIO (Nido.run maxConcumonesSem tiempoMovConcumon mapaChan listaIdConcumonesLibresMvar)
 	idMapa <- forkIO (Mapa.run xDim yDim mapaChan listaPuntajeJugadoresMVar)
 	idSysadmin <- forkIO (Sysadmin.run listaPuntajeJugadoresMVar)
 

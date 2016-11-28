@@ -1,14 +1,19 @@
 module UtilList
     ( UtilList.safeReplaceElement,
-      UtilList.getIndexOfFirstBoolEqualTo
+      UtilList.getIndexOfFirstBoolEqualTo,
+      UtilList.updateConcurrentList
     ) where
 
 import Control.Monad
+import Control.Concurrent
 
-getIndexOfFirstBoolEqualTo
-  :: [Bool]
-  ->  Bool
-  ->  Int
+updateConcurrentList :: MVar([a]) -> Int -> a -> IO()
+updateConcurrentList mVar index value = do
+	list <- takeMVar mVar
+	let newList = UtilList.safeReplaceElement list index value
+	putMVar mVar newList
+
+getIndexOfFirstBoolEqualTo :: [Bool] ->  Bool ->  Int
 getIndexOfFirstBoolEqualTo list value = do
 	let listSize = length list
 	let indexList = take listSize (iterate (1+) 0)
