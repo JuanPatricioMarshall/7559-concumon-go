@@ -1,9 +1,25 @@
 module UtilList
-    ( UtilList.safeReplaceElement
+    ( UtilList.safeReplaceElement,
+      UtilList.getIndexOfFirstBoolEqualTo
     ) where
 
 import Control.Monad
 
+getIndexOfFirstBoolEqualTo
+  :: [Bool]
+  ->  Bool
+  ->  Int
+getIndexOfFirstBoolEqualTo list value = do
+	let listSize = length list
+	let indexList = take listSize (iterate (1+) 0)
+	let auxList = zip indexList list
+	let filterList = filter ((==value).snd) auxList
+	
+	if null filterList 
+		then -1
+		else	
+			fst (head filterList)
+		
 -- | Replaces an element in a list with a new element, if that element exists.
 safeReplaceElement
   -- | The list

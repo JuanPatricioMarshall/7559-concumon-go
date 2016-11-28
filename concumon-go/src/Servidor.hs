@@ -8,21 +8,14 @@ import Control.Monad
 import Jugador
 import UtilList
 
-run :: Int -> Chan String -> Chan (Bool, Bool, Int) -> QSem -> MVar([Bool]) -> MVar([Int]) -> IO ()
-run cantJugadores connectionChan mapaChan maxJugadoresSem listaIdJugadoresLibresMVar listaPuntajeJugadoresMVar  = do
+run :: Int -> Chan String -> Chan (Bool, Bool, Int) -> QSem -> MVar([Bool]) -> IO ()
+run cantJugadores connectionChan mapaChan maxJugadoresSem listaIdJugadoresLibresMVar  = do
 	putStrLn ("Corriendo Servidor")
-	forever $ do
-
-		--Ejemplo Modificar Valores en MVae
-		-- listaIdJugadoresLibres <- takeMVar listaIdJugadoresLibresMVar
-		-- let newListaIdJugadoresLibres = UtilList.safeReplaceElement listaIdJugadoresLibres 0 False
-		-- putMVar listaIdJugadoresLibresMVar newListaIdJugadoresLibres
-
+	forever $ do		
 		waitQSem maxJugadoresSem
-
 		line <- readChan connectionChan
 		putStrLn line
 		putStrLn ("Agregando nuevo jugador.")
-		idJugador <- forkIO(Jugador.run mapaChan maxJugadoresSem)
+		idJugador <- forkIO(Jugador.run mapaChan maxJugadoresSem listaIdJugadoresLibresMVar)
 		putStrLn "Se agrego un nuevo jugador"
 		putStrLn "Finalizando servidor"

@@ -4,16 +4,21 @@ module Jugador
 
 import Control.Concurrent
 import Data.Tuple
+import UtilList
 
-run :: Chan (Bool, Bool, Int) -> QSem -> IO ()
-run mapaChan maxJugadoresSem = do
+run :: Chan (Bool, Bool, Int) -> QSem -> MVar([Bool]) -> IO ()
+run mapaChan maxJugadoresSem listaIdJugadoresLibresMVar = do
 	putStrLn ("Corriendo Jugador")
 	jugadoresSem <- newQSem 0
 
-	-- TODO: Obtener id del jugador
+	-- Actualizo Lista de Jugadores Libres - Asigno ID
+	listaIdJugadoresLibres <- takeMVar listaIdJugadoresLibresMVar
+	let idJugador = UtilList.getIndexOfFirstBoolEqualTo listaIdJugadoresLibres True
+	let newListaIdJugadoresLibres = UtilList.safeReplaceElement listaIdJugadoresLibres idJugador False
+	putMVar listaIdJugadoresLibresMVar newListaIdJugadoresLibres
 
-	let id = 1
-	let accionCrearJugador = (False, True, id)
+
+	let accionCrearJugador = (False, True, idJugador)
 	writeChan mapaChan accionCrearJugador
 
 	-- TODO: waitQSem jugadoresSem
@@ -21,5 +26,10 @@ run mapaChan maxJugadoresSem = do
 	putStrLn ("Empezando a Jugar")
 	threadDelay	10000000
 
-	putStrLn ("Termine de jugar")
+		-- Actualizo Lista de Jugadores Libres - Libero ID
+	listaIdJugadoresLibres <- takeMVar listaIdJugadoresLibresMVar
+	let newListaIdJugadoresLibres = UtilList.safeReplaceElement listaIdJugadoresLibres idJugador True
+	putMVar listaIdJugadoresLibresMVar newListaIdJugadoresLibres
+
+	putStrLn ("Termino de jugar, Jugador " ++ show(idJugador))
 	signalQSem maxJugadoresSem

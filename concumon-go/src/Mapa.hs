@@ -8,8 +8,8 @@ import Data.Tuple
 
 
 -- mapaChan: (Mover(True) o Crear(False), Jugador(True) o Concumon(False), id)
-run :: Int -> Int -> Chan (Bool, Bool, Int) -> IO ()
-run x y mapaChan = do
+run :: Int -> Int -> Chan (Bool, Bool, Int) -> MVar([Int]) -> IO ()
+run x y mapaChan  listaPuntajeJugadoresMVar = do
 	putStrLn ("Corriendo Mapa")
 	putStrLn ("Dimensiones: [" ++ show(x) ++ "x" ++ show(y) ++ "]")
 	forever $ do

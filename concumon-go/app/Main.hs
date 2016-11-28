@@ -46,9 +46,9 @@ main = do
 	maxConcumonesSem <- newQSem maxConcumones
 
 	idAdminJugadores <- forkIO (AdminJugadores.run cantJugadores connectionChan)
-	idServidor <- forkIO (Servidor.run cantJugadores connectionChan mapaChan maxJugadoresSem listaIdJugadoresLibresMVar listaPuntajeJugadoresMVar)
+	idServidor <- forkIO (Servidor.run cantJugadores connectionChan mapaChan maxJugadoresSem listaIdJugadoresLibresMVar)
 	idNido <- forkIO (Nido.run maxConcumonesSem tiempoMovConcumon mapaChan)
-	idMapa <- forkIO (Mapa.run xDim yDim mapaChan)
+	idMapa <- forkIO (Mapa.run xDim yDim mapaChan listaPuntajeJugadoresMVar)
 	idSysadmin <- forkIO (Sysadmin.run listaPuntajeJugadoresMVar)
 
 
