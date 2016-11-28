@@ -25,4 +25,4 @@ run cantJugadores connectionChan mapaChan maxJugadoresSem listaIdJugadoresLibres
 		putStrLn ("Agregando nuevo jugador.")
 		idJugador <- forkIO(Jugador.run mapaChan maxJugadoresSem idJugador listaIdJugadoresLibresMVar)
 		putStrLn "Se agrego un nuevo jugador"
-		putStrLn "Finalizando servidor"
+	putStrLn "Finalizando servidor"

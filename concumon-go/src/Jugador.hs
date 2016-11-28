@@ -16,6 +16,7 @@ run mapaChan maxJugadoresSem idJugador listaIdJugadoresLibresMVar = do
 
 	-- TODO: waitQSem jugadoresSem
 
+	-- TODO: Agregar loop de jugar
 	putStrLn ("Empezando a Jugar")
 	threadDelay	10000000
 

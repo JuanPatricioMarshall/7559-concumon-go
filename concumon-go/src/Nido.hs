@@ -25,4 +25,4 @@ run maxConcumonesSem tiempoMovConcumon mapaChan listaIdConcumonesLibresMvar = do
 
 		idConcumon <- forkIO(Concumon.run maxConcumonesSem tiempoMovConcumon mapaChan idConcumon listaIdConcumonesLibresMvar)
 		threadDelay	1000000
-		putStrLn "Finalizando Nido"
+	putStrLn "Finalizando Nido"

@@ -18,6 +18,8 @@ run maxConcumonesSem tiempoMov mapaChan idConcumon listaIdConcumonesLibresMvar =
 	-- TODO: waitQSem concumonSem
 	threadDelay	1000000
 	putStrLn ("Soy un concumon en el mapa")
+
+	-- TODO: Hacer loop de moverse en el mapa hasta que le llegue la senial de captura
 	threadDelay	10000000
 
 	-- Actualizo Lista de Concumones Libres - Libero ID
