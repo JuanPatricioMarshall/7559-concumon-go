@@ -6,15 +6,15 @@ import Control.Concurrent
 import Data.Tuple
 import UtilList
 
-run :: Chan (Bool, Bool, Int) -> QSem -> Int -> MVar([Bool]) -> IO ()
+run :: Chan (Bool, Bool, Int, QSem) -> QSem -> Int -> MVar([Bool]) -> IO ()
 run mapaChan maxJugadoresSem idJugador listaIdJugadoresLibresMVar = do
 	putStrLn ("Corriendo Jugador")
-	jugadoresSem <- newQSem 0
+	jugadorSem <- newQSem 0
 
-	let accionCrearJugador = (False, True, idJugador)
+	let accionCrearJugador = (False, True, idJugador, jugadorSem)
 	writeChan mapaChan accionCrearJugador
 
-	-- TODO: waitQSem jugadoresSem
+	waitQSem jugadorSem
 
 	-- TODO: Agregar loop de jugar
 	putStrLn ("Empezando a Jugar")

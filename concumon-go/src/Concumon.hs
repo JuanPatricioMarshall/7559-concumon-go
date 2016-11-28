@@ -7,15 +7,15 @@ import Control.Concurrent
 import UtilList
 
 
-run :: QSem -> Int -> Chan (Bool, Bool, Int) -> Int -> MVar([Bool])-> IO ()
+run :: QSem -> Int -> Chan (Bool, Bool, Int, QSem) -> Int -> MVar([Bool])-> IO ()
 run maxConcumonesSem tiempoMov mapaChan idConcumon listaIdConcumonesLibresMvar = do
 	putStrLn ("Corriendo Concumon")
 	concumonSem <- newQSem 0
 
-	let accionCrearConcumon = (False, False, idConcumon)
+	let accionCrearConcumon = (False, False, idConcumon, concumonSem)
 	writeChan mapaChan accionCrearConcumon
 
-	-- TODO: waitQSem concumonSem
+	waitQSem concumonSem
 	threadDelay	1000000
 	putStrLn ("Soy un concumon en el mapa")
 
