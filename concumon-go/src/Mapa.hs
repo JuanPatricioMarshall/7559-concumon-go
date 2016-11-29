@@ -20,19 +20,24 @@ run x y mapaChan listaPuntajeJugadoresMVar = do
 
 		if (esMover accion)
 			then do if(esJugador accion)
-				then do putStrLn ("Moviendo jugador " ++ show (getId accion))
-				else do putStrLn ("Moviendo concumon " ++ show (getId accion))
+				then do 
+					putStrLn ("Moviendo jugador " ++ show (getId accion))
+					updatePoints listaPuntajeJugadoresMVar (getId accion) 10
+				else do 
+					putStrLn ("Moviendo concumon " ++ show (getId accion))
 		else if (esJugador accion)
-			then do putStrLn ("Creando jugador " ++ show (getId accion))
-			else do putStrLn ("Creando concumon " ++ show (getId accion))
+			then do 
+				putStrLn ("Creando jugador " ++ show (getId accion))
+			else do 
+				putStrLn ("Creando concumon " ++ show (getId accion))
 
-
+		signalQSem (getSem accion)
 
 		--Ejemplo De Sumar Puntos
 		--when (esJugador accion) $ updatePoints listaPuntajeJugadoresMVar (getId accion) 10
 
 
-		signalQSem (getSem accion)
+		
 
 esMover :: (Bool, Bool, Int, QSem) -> Bool
 esMover (mover, _, _, _) = mover
