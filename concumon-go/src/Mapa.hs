@@ -10,7 +10,7 @@ import UtilList
 
 -- mapaChan: (Mover(True) o Crear(False), Jugador(True) o Concumon(False), id, semaforo del jugador/concumon)
 run :: Int -> Int -> Chan (Bool, Bool, Int, QSem) -> MVar([Int]) -> IO ()
-run x y mapaChan listaPuntajeJugadoresMVar = do
+run x y mapaChan puntosJugadores = do
 	putStrLn ("Corriendo Mapa")
 	putStrLn ("Dimensiones: [" ++ show(x) ++ "x" ++ show(y) ++ "]")
 	forever $ do
@@ -21,23 +21,35 @@ run x y mapaChan listaPuntajeJugadoresMVar = do
 		if (esMover accion)
 			then do if(esJugador accion)
 				then do 
-					putStrLn ("Moviendo jugador " ++ show (getId accion))
-					updatePoints listaPuntajeJugadoresMVar (getId accion) 10
+					moverJugador (getId accion) puntosJugadores
 				else do 
-					putStrLn ("Moviendo concumon " ++ show (getId accion))
+					moverConcumon (getId accion)
 		else if (esJugador accion)
 			then do 
-				putStrLn ("Creando jugador " ++ show (getId accion))
+				crearJugador (getId accion)				
 			else do 
-				putStrLn ("Creando concumon " ++ show (getId accion))
+				crearConcumon (getId accion)
 
 		signalQSem (getSem accion)
 
-		--Ejemplo De Sumar Puntos
-		--when (esJugador accion) $ updatePoints listaPuntajeJugadoresMVar (getId accion) 10
 
+moverJugador :: Int  -> MVar([Int]) -> IO()
+moverJugador idJugador puntosJugadores = do
+	putStrLn ("Moviendo jugador " ++ show idJugador)
+	updatePoints puntosJugadores idJugador 10
 
-		
+moverConcumon :: Int -> IO()
+moverConcumon idConcumon = do
+	putStrLn ("Moviendo concumon " ++ show idConcumon)
+
+crearJugador :: Int -> IO()
+crearJugador idJugador  = do
+	putStrLn ("Creando jugador " ++ show idJugador)
+
+crearConcumon :: Int -> IO()
+crearConcumon idConcumon  = do
+	putStrLn ("Creando concumon " ++ show idConcumon)
+
 
 esMover :: (Bool, Bool, Int, QSem) -> Bool
 esMover (mover, _, _, _) = mover
