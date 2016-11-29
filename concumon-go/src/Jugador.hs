@@ -18,6 +18,10 @@ run mapaChan maxJugadoresSem idJugador listaIdJugadoresLibresMVar = do
 
 	-- TODO: Agregar loop de jugar
 	putStrLn ("Empezando a Jugar")
+	let accionMoverJugador = (True, True, idJugador, jugadorSem)
+	writeChan mapaChan accionMoverJugador
+	waitQSem jugadorSem
+
 	threadDelay	10000000
 
 	-- Actualizo Lista de Jugadores Libres - Libero ID
