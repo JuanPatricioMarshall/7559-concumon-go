@@ -6,6 +6,7 @@ import Control.Concurrent
 import Data.Tuple
 import UtilList
 
+
 run :: Chan (Bool, Bool, Int, QSem) -> QSem -> Int -> MVar([Bool]) -> IO ()
 run mapaChan maxJugadoresSem idJugador listaIdJugadoresLibresMVar = do
 	putStrLn ("Corriendo Jugador")
@@ -16,13 +17,8 @@ run mapaChan maxJugadoresSem idJugador listaIdJugadoresLibresMVar = do
 
 	waitQSem jugadorSem
 
-	-- TODO: Agregar loop de jugar
 	putStrLn ("Empezando a Jugar")
-	let accionMoverJugador = (True, True, idJugador, jugadorSem)
-	writeChan mapaChan accionMoverJugador
-	waitQSem jugadorSem
-
-	threadDelay	10000000
+	executeTask 1 idJugador jugadorSem mapaChan
 
 	-- Actualizo Lista de Jugadores Libres - Libero ID
 	UtilList.updateConcurrentList listaIdJugadoresLibresMVar idJugador True
@@ -30,5 +26,18 @@ run mapaChan maxJugadoresSem idJugador listaIdJugadoresLibresMVar = do
 	putStrLn ("Termino de jugar, Jugador " ++ show(idJugador))
 	signalQSem maxJugadoresSem
 
+
+executeTask :: Int -> Int -> QSem -> Chan (Bool, Bool, Int, QSem) -> IO()
+executeTask n idJugador jugadorSem mapaChan = do
+	if n == 0
+		then do
+			return ()
+		else do
+				let accionMoverJugador = (True, True, idJugador, jugadorSem)
+				writeChan mapaChan accionMoverJugador
+				waitQSem jugadorSem
+				threadDelay	10000000 -- Random
+				let rnd = 1 -- TODO
+				executeTask rnd idJugador jugadorSem mapaChan 
 
 
