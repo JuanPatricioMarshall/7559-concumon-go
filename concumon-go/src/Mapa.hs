@@ -66,9 +66,12 @@ moverJugador mapa rows cols idJugador puntosJugadores = do
 					--TODO: Agregar random para elegir la posicion!
 					let nuevaPosicion = head adyacentes
 
-					handleColision
 
-handleColision :: IO()
+
+					handleColision idJugador puntosJugadores
+
+handleColision :: Int -> MVar([Int]) -> IO()
+handleColision idJugador puntosJugadores = do
 	updatePoints puntosJugadores idJugador 10
 
 
