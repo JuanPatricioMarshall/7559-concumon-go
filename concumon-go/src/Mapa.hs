@@ -25,7 +25,7 @@ run rows cols mapaChan puntosJugadores estadoConcumones = do
 
 		accion <- readChan mapaChan
 
-		let mapas = 
+		mapasUpdated <-
 			if (esMover accion)
 				then do if(esJugador accion)
 					then 
@@ -53,7 +53,7 @@ findEmptySlot mapa = do
 
 
 --TODO Hacer que devuelvan mapa
-moverJugador :: ([(Int,Int)], [(Int,Int)]) -> Int -> Int -> Int -> MVar([Int]) -> MVar([Int]) -> ([(Int,Int)], [(Int,Int)])
+moverJugador :: ([(Int,Int)], [(Int,Int)]) -> Int -> Int -> Int -> MVar([Int]) -> MVar([Int]) -> IO ([(Int,Int)], [(Int,Int)])
 moverJugador mapas rows cols idJugador puntosJugadores estadoConcumones = do
 	let mapaJug = fst mapas
 	let mapaConc = snd mapas
@@ -72,24 +72,23 @@ moverJugador mapas rows cols idJugador puntosJugadores estadoConcumones = do
 					--TODO: Agregar random para elegir la posicion!
 					let nuevaPosicion = head adyacentes 
 					let newMapaJug = updateElemMapa (updateElemMapa mapaJug posicionJugador (-1)) nuevaPosicion idJugador
-					let newMapaConc = 
-						if (getValueFromMapa mapaConc nuevaPosicion >= 0)
-							then
-								handleColision mapaConc nuevaPosicion idJugador puntosJugadores estadoConcumones
-							else
-								mapaConc
-					return (newMapaJug, newMapaConc)
+					if (getValueFromMapa mapaConc nuevaPosicion >= 0)
+						then do
+							let newMapaConc = updateElemMapa mapaConc nuevaPosicion (-1)
+							handleColision mapaConc nuevaPosicion idJugador puntosJugadores estadoConcumones
+							return (newMapaJug, newMapaConc)
+						else do
+							return (newMapaJug, mapaConc)
+					
 					
 
-handleColision :: [(Int,Int)] -> Int -> Int -> MVar([Int]) -> MVar([Int]) -> [(Int,Int)]
+handleColision :: [(Int,Int)] -> Int -> Int -> MVar([Int]) -> MVar([Int]) -> IO()
 handleColision mapaConc pos idJugador puntosJugadores estadoConcumones = do
 	let idConcumon = getValueFromMapa mapaConc pos
 	eliminarConcumon estadoConcumones idConcumon
-	let newMapaConc = updateElemMapa mapaConc pos (-1)
 	updatePoints puntosJugadores idJugador 10
-	return newMapaConc
 
-moverConcumon :: ([(Int,Int)], [(Int,Int)]) -> Int -> ([(Int,Int)], [(Int,Int)])
+moverConcumon :: ([(Int,Int)], [(Int,Int)]) -> Int -> IO ([(Int,Int)], [(Int,Int)])
 moverConcumon mapas idConcumon = do
 	putStrLn ("Moviendo concumon " ++ show idConcumon ++ " en Mapa")
 	return mapas
@@ -101,14 +100,14 @@ eliminarConcumon estadoConcumones idConcumon = do
 	let newList = UtilList.safeReplaceElement list idConcumon 2
 	putMVar estadoConcumones newList
 
-crearJugador :: ([(Int,Int)], [(Int,Int)]) -> Int -> ([(Int,Int)], [(Int,Int)])
+crearJugador :: ([(Int,Int)], [(Int,Int)]) -> Int -> IO ([(Int,Int)], [(Int,Int)])
 crearJugador mapas idJugador  = do
-	let emptySlot = findEmptySlot mapa
+	let emptySlot = findEmptySlot (fst mapas)
 	putStrLn ("Creando jugador " ++ show idJugador ++ " en Posicion " ++ show emptySlot)
 	return mapas
 
 
-crearConcumon :: ([(Int,Int)], [(Int,Int)]) -> Int -> ([(Int,Int)], [(Int,Int)])
+crearConcumon :: ([(Int,Int)], [(Int,Int)]) -> Int -> IO ([(Int,Int)], [(Int,Int)])
 crearConcumon mapas idConcumon  = do
 	putStrLn ("Creando concumon " ++ show idConcumon ++ " en Mapa")
 	return mapas
