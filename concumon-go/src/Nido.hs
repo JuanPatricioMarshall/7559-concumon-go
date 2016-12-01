@@ -8,7 +8,7 @@ import UtilList
 
 import Concumon
 
-run :: QSem -> Int -> Chan (Bool, Bool, Int, QSem) -> MVar([Int]) -> IO ()
+run :: QSem -> Int -> Chan (Int, Bool, Int, QSem) -> MVar([Int]) -> IO ()
 run maxConcumonesSem tiempoMovConcumon mapaChan estadoConcumonesMvar = do
 	putStrLn ("Corriendo Nido")
 	-- TODO: Ver si esta bien con forever, o usar otra cosa

@@ -7,18 +7,24 @@ import Data.Tuple
 import UtilList
 
 
-run :: Chan (Bool, Bool, Int, QSem) -> QSem -> Int -> MVar([Bool]) -> IO ()
+run :: Chan (Int, Bool, Int, QSem) -> QSem -> Int -> MVar([Bool]) -> IO ()
 run mapaChan maxJugadoresSem idJugador listaIdJugadoresLibresMVar = do
 	putStrLn ("Corriendo Jugador")
 	jugadorSem <- newQSem 0
 
-	let accionCrearJugador = (False, True, idJugador, jugadorSem)
+	let accionCrearJugador = (0, True, idJugador, jugadorSem)
 	writeChan mapaChan accionCrearJugador
 
 	waitQSem jugadorSem
 
 	putStrLn ("Empezando a Jugar")
 	executeTask 1 idJugador jugadorSem mapaChan
+
+
+	--Mensaje a mapa para que me libere del mapa
+	let accionBorrarJugador = (2, True, idJugador, jugadorSem)
+	writeChan mapaChan accionBorrarJugador
+	waitQSem jugadorSem
 
 	-- Actualizo Lista de Jugadores Libres - Libero ID
 	UtilList.updateConcurrentList listaIdJugadoresLibresMVar idJugador True
@@ -27,13 +33,13 @@ run mapaChan maxJugadoresSem idJugador listaIdJugadoresLibresMVar = do
 	signalQSem maxJugadoresSem
 
 
-executeTask :: Int -> Int -> QSem -> Chan (Bool, Bool, Int, QSem) -> IO()
+executeTask :: Int -> Int -> QSem -> Chan (Int, Bool, Int, QSem) -> IO()
 executeTask n idJugador jugadorSem mapaChan = do
 	if n == 0
 		then do
 			return ()
 		else do
-				let accionMoverJugador = (True, True, idJugador, jugadorSem)
+				let accionMoverJugador = (1, True, idJugador, jugadorSem)
 				writeChan mapaChan accionMoverJugador
 				waitQSem jugadorSem
 				threadDelay	10000000 -- TODO Random

@@ -7,12 +7,12 @@ import Control.Concurrent
 import UtilList
 
 
-run :: QSem -> Int -> Chan (Bool, Bool, Int, QSem) -> Int -> MVar([Int])-> IO ()
+run :: QSem -> Int -> Chan (Int, Bool, Int, QSem) -> Int -> MVar([Int])-> IO ()
 run maxConcumonesSem tiempoMov mapaChan idConcumon estadoConcumonMvar = do
 	putStrLn ("Corriendo Concumon")
 	concumonSem <- newQSem 0
 
-	let accionCrearConcumon = (False, False, idConcumon, concumonSem)
+	let accionCrearConcumon = (0, False, idConcumon, concumonSem)
 	writeChan mapaChan accionCrearConcumon
 
 	waitQSem concumonSem
@@ -33,19 +33,19 @@ run maxConcumonesSem tiempoMov mapaChan idConcumon estadoConcumonMvar = do
 
 
 	
-executeTask :: Int -> Int -> QSem -> Int -> Chan (Bool, Bool, Int, QSem) -> MVar([Int]) -> IO()
+executeTask :: Int -> Int -> QSem -> Int -> Chan (Int, Bool, Int, QSem) -> MVar([Int]) -> IO()
 executeTask n idConcumon concumonSem tiempoMov mapaChan estadoConcumonMvar = do
 	if n == 2
 		then do
 			return ()
 		else do
-				let accionMoverConcumon = (True, False, idConcumon, concumonSem)
-				writeChan mapaChan accionMoverConcumon
-				waitQSem concumonSem
-				threadDelay	tiempoMov
-				estadoConcumonList <- readMVar estadoConcumonMvar
-				let estadoConcumon = estadoConcumonList!!idConcumon
-				executeTask estadoConcumon idConcumon concumonSem tiempoMov mapaChan estadoConcumonMvar
+			let accionMoverConcumon = (1, False, idConcumon, concumonSem)
+			writeChan mapaChan accionMoverConcumon
+			waitQSem concumonSem
+			threadDelay	tiempoMov
+			estadoConcumonList <- readMVar estadoConcumonMvar
+			let estadoConcumon = estadoConcumonList!!idConcumon
+			executeTask estadoConcumon idConcumon concumonSem tiempoMov mapaChan estadoConcumonMvar
 
 
 

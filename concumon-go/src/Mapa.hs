@@ -8,8 +8,8 @@ import Data.Tuple
 import UtilList
 
 
--- mapaChan: (Mover(True) o Crear(False), Jugador(True) o Concumon(False), id, semaforo del jugador/concumon)
-run :: Int -> Int -> Chan (Bool, Bool, Int, QSem) -> MVar([Int]) -> MVar([Int]) -> IO ()
+-- mapaChan: (Crear(0) o Mover(1) o Borrar(2), Jugador(True) o Concumon(False), id, semaforo del jugador/concumon)
+run :: Int -> Int -> Chan (Int, Bool, Int, QSem) -> MVar([Int]) -> MVar([Int]) -> IO ()
 run rows cols mapaChan puntosJugadores estadoConcumones = do
 	putStrLn ("Corriendo Mapa")
 	putStrLn ("Dimensiones: [" ++ show(rows) ++ "x" ++ show(cols) ++ "]")
@@ -29,7 +29,7 @@ run rows cols mapaChan puntosJugadores estadoConcumones = do
 
 		
 
-loopMapa :: ([Int], [Int]) -> Int -> Int -> Chan (Bool, Bool, Int, QSem) -> MVar([Int]) -> MVar([Int]) -> IO ()
+loopMapa :: ([Int], [Int]) -> Int -> Int -> Chan (Int, Bool, Int, QSem) -> MVar([Int]) -> MVar([Int]) -> IO ()
 loopMapa mapas rows cols mapaChan puntosJugadores estadoConcumones = do
 	accion <- readChan mapaChan
 
@@ -40,11 +40,22 @@ loopMapa mapas rows cols mapaChan puntosJugadores estadoConcumones = do
 					moverJugador mapas rows cols (getId accion) puntosJugadores estadoConcumones
 				else 
 					moverConcumon mapas (getId accion)
-		else if (esJugador accion)
-			then 
-				crearJugador mapas rows cols (getId accion)				
-			else 
-				crearConcumon mapas rows cols (getId accion)
+		else if (esCrear accion)
+			then if (esJugador accion)
+				then 
+					crearJugador mapas rows cols (getId accion)				
+				else 
+					crearConcumon mapas rows cols (getId accion)
+		else if (esBorrar accion)
+			then if (esJugador accion)
+				then
+					eliminarJugador mapas rows cols (getId accion)
+				else
+					--Accion no habilitada para llamar desde afuera
+					return mapas
+			else
+				--Accion incorrecta
+				return mapas
 	}
 
 	let mapas = mapasUpdated
@@ -67,11 +78,6 @@ findEmptySlot mapa = do
 --Devuelve posiciones donde el valor del mapa es == value
 filterMap :: [Int] -> Int -> [Int]
 filterMap mapa value = (filter (\x -> ((getValueFromMapa mapa x) == value)) [0..((length mapa)-1)])
-
---	let indices = [0..((length mapa)-1)]
-
-	--return (filter (\x -> ((getValueFromMapa mapa x) == value)) indices)
---	return indices
 
 filterAdyacentes :: [Int] -> [Int] -> [Int]
 filterAdyacentes mapa adyacentes = (filter (\x -> (getValueFromMapa mapa x) == (-1)) adyacentes)
@@ -126,13 +132,6 @@ moverConcumon mapas idConcumon = do
 	putStrLn ("Moviendo concumon " ++ show idConcumon ++ " en Mapa")
 	return mapas
 
-eliminarConcumon:: MVar([Int]) -> Int -> IO()
-eliminarConcumon estadoConcumones idConcumon = do
-	putStrLn ("Eliminando Concumon " ++ show idConcumon)
-	list <- takeMVar estadoConcumones
-	let newList = UtilList.safeReplaceElement list idConcumon 2
-	putMVar estadoConcumones newList
-
 crearJugador :: ([Int], [Int]) -> Int -> Int -> Int -> IO ([Int], [Int])
 crearJugador mapas rows cols idJugador  = do
 	--TODO: Solo checkeo en mapaJug, habria que checkear en mapaConc. (o tener otro mapa compartido...)
@@ -152,16 +151,40 @@ crearConcumon mapas rows cols idConcumon  = do
 	return mapas
 
 
-esMover :: (Bool, Bool, Int, QSem) -> Bool
-esMover (mover, _, _, _) = mover
+eliminarConcumon:: MVar([Int]) -> Int -> IO()
+eliminarConcumon estadoConcumones idConcumon = do
+	putStrLn ("Eliminando Concumon " ++ show idConcumon)
+	list <- takeMVar estadoConcumones
+	let newList = UtilList.safeReplaceElement list idConcumon 2
+	putMVar estadoConcumones newList
 
-esJugador :: (Bool, Bool, Int, QSem) -> Bool
+eliminarJugador:: ([Int], [Int]) -> Int -> Int -> Int -> IO ([Int], [Int])
+eliminarJugador mapas rows cols idJugador = do
+	putStrLn ("Eliminando Jugador " ++ show idJugador)
+	let mapaJug = fst mapas
+	let mapaConc = snd mapas
+	let posJugador = head (filterMap mapaJug idJugador)
+	let newMapaJug = updateElemMapa mapaJug posJugador (-1)
+	return (newMapaJug, mapaConc)
+
+
+
+esCrear :: (Int, Bool, Int, QSem) -> Bool
+esCrear (accion, _, _, _) = (accion == 0)
+
+esMover :: (Int, Bool, Int, QSem) -> Bool
+esMover (accion, _, _, _) = (accion == 1)
+
+esBorrar :: (Int, Bool, Int, QSem) -> Bool
+esBorrar (accion, _, _, _) = (accion == 2)
+
+esJugador :: (Int, Bool, Int, QSem) -> Bool
 esJugador (_, jugador, _, _) = jugador
 
-getId :: (Bool, Bool, Int, QSem) -> Int
+getId :: (Int, Bool, Int, QSem) -> Int
 getId (_, _, id, _) = id
 
-getSem :: (Bool, Bool, Int, QSem) -> QSem
+getSem :: (Int, Bool, Int, QSem) -> QSem
 getSem (_, _, _, sem) = sem
 
 updatePoints :: MVar([Int]) -> Int -> Int -> IO()
