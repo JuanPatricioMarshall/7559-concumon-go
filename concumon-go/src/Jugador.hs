@@ -5,6 +5,7 @@ module Jugador
 import Control.Concurrent
 import Data.Tuple
 import UtilList
+import UtilRandom
 
 
 run :: Chan (Int, Bool, Int, QSem) -> QSem -> Int -> MVar([Bool]) -> MVar([Int]) -> IO ()
@@ -18,7 +19,10 @@ run mapaChan maxJugadoresSem idJugador listaIdJugadoresLibresMVar puntosJugadore
 	waitQSem jugadorSem
 
 	putStrLn ("Jugador " ++ show idJugador ++ " empezando a jugar")
-	let iteraciones = 5 -- Hacer random
+
+
+	iteraciones <- UtilRandom.getRandomElem [2,3,4,5]
+	
 	executeTask iteraciones idJugador jugadorSem mapaChan
 
 
@@ -46,7 +50,10 @@ executeTask n idJugador jugadorSem mapaChan = do
 			let accionMoverJugador = (1, True, idJugador, jugadorSem)
 			writeChan mapaChan accionMoverJugador
 			waitQSem jugadorSem
-			threadDelay	10000000 -- TODO Random
+
+			tiempo <- UtilRandom.getRandomInt 2000000 10000000
+			
+			threadDelay	tiempo
 			executeTask (n-1) idJugador jugadorSem mapaChan 
 
 

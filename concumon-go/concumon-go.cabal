@@ -15,7 +15,7 @@ cabal-version:       >=1.10
 
 library
   hs-source-dirs:      src
-  exposed-modules:     AdminJugadores, Servidor, Nido, Mapa, UtilList, Sysadmin, UtilFile
+  exposed-modules:     AdminJugadores, Servidor, Nido, Mapa, UtilList, Sysadmin, UtilFile, UtilRandom
   other-modules:       Jugador, Concumon
   build-depends:       random, base >= 4.7 && < 5
   default-language:    Haskell2010

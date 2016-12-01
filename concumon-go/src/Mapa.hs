@@ -6,6 +6,7 @@ import Control.Concurrent
 import Control.Monad
 import Data.Tuple
 import UtilList
+import UtilRandom
 
 
 -- mapaChan: (Crear(0) o Mover(1) o Borrar(2), Jugador(True) o Concumon(False), id, semaforo del jugador/concumon)
@@ -64,17 +65,16 @@ loopMapa mapas rows cols mapaChan puntosJugadores estadoConcumones = do
 
 
 --Deprecated
-findEmptySlot :: [Int] -> Int
+findEmptySlot :: [Int] -> IO Int
 findEmptySlot mapa = do
 	let emptySlots = filterMap mapa (-1)
 	if null emptySlots
-		then (-1)
+		then return (-1)
 		else
-			--Siempre se devuelve la primer posicion de las posiciones vacias. TODO: Ver como hacer que devuelva random.
-			head emptySlots
+			(UtilRandom.getRandomElem emptySlots)
 
 
-buscarPosVacia :: ([Int],[Int]) -> Int
+buscarPosVacia :: ([Int],[Int]) -> IO Int
 buscarPosVacia mapas = do
 	let mapaJug = fst mapas
 	let mapaConc = snd mapas
@@ -82,10 +82,9 @@ buscarPosVacia mapas = do
 	let posicionesSinJugadoresNiConcumones = filterIndexList mapaConc posicionesSinJugadores (-1)
 
 	if null posicionesSinJugadoresNiConcumones
-		then (-1)
+		then return (-1)
 		else
-			--Siempre se devuelve la primer posicion de las posiciones vacias. TODO: Ver como hacer que devuelva random.
-			head posicionesSinJugadoresNiConcumones
+			(UtilRandom.getRandomElem posicionesSinJugadoresNiConcumones)
 
 --Devuelve posiciones donde el valor del mapa es == value
 filterMap :: [Int] -> Int -> [Int]
@@ -116,10 +115,8 @@ moverJugador mapas rows cols idJugador puntosJugadores estadoConcumones = do
 					putStrLn("No hay casillas adyacentes libres")
 					return mapas --No hay casillas adyacentes libres
 				else do
-					--TODO: Agregar random para elegir la posicion!
-					let nuevaPosicion = head adyacentesSinJugadores 
-					--putStrLn("adyacentes " ++ show adyacentes)
-					--putStrLn("adyacentes sin jug " ++ show adyacentesSinJugadores)
+
+					nuevaPosicion <- UtilRandom.getRandomElem adyacentesSinJugadores
 					putStrLn ("Moviendo jugador " ++ show idJugador ++ " de " ++ show (UtilList.getMapCoordinates posicionJugador rows cols) ++ " a " ++ show (UtilList.getMapCoordinates nuevaPosicion rows cols))
 
 					let newMapaJugAux = updateElemMapa mapaJug posicionJugador (-1)
@@ -161,10 +158,7 @@ moverConcumon mapas rows cols idConcumon = do
 					putStrLn("No hay casillas adyacentes libres")
 					return mapas --No hay casillas adyacentes libres
 				else do
-					--TODO: Agregar random para elegir la posicion!
-					let nuevaPosicion = head adyacentesSinJugadoresNiConcumones 
-					--putStrLn("adyacentes " ++ show adyacentes)
-					--putStrLn("adyacentes sin jug " ++ show adyacentesSinJugadores)
+					nuevaPosicion <- UtilRandom.getRandomElem adyacentesSinJugadoresNiConcumones
 					putStrLn ("Moviendo concumon " ++ show idConcumon ++ " de " ++ show (UtilList.getMapCoordinates posicionConcumon rows cols) ++ " a " ++ show (UtilList.getMapCoordinates nuevaPosicion rows cols))
 
 					let newMapaConcAux = updateElemMapa mapaConc posicionConcumon (-1)
@@ -174,7 +168,7 @@ moverConcumon mapas rows cols idConcumon = do
 
 crearJugador :: ([Int], [Int]) -> Int -> Int -> Int -> IO ([Int], [Int])
 crearJugador mapas rows cols idJugador  = do
-	let posicionVacia = buscarPosVacia mapas
+	posicionVacia <- buscarPosVacia mapas
 	let mapaJug = fst mapas
 	putStrLn ("Creando jugador " ++ show idJugador ++ " en Posicion " ++ show (UtilList.getMapCoordinates posicionVacia rows cols))
 	let newMapaJug = updateElemMapa mapaJug posicionVacia idJugador 
@@ -183,7 +177,7 @@ crearJugador mapas rows cols idJugador  = do
 
 crearConcumon :: ([Int], [Int]) -> Int -> Int -> Int -> IO ([Int], [Int])
 crearConcumon mapas rows cols idConcumon  = do
-	let posicionVacia = buscarPosVacia mapas
+	posicionVacia <- buscarPosVacia mapas
 	let mapaJug = fst mapas
 	let mapaConc = snd mapas
 	putStrLn ("Creando concumon " ++ show idConcumon ++ " en Posicion " ++ show (UtilList.getMapCoordinates posicionVacia rows cols))
