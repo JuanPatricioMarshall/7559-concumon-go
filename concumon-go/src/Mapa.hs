@@ -13,6 +13,11 @@ run :: Int -> Int -> Chan (Bool, Bool, Int, QSem) -> MVar([Int]) -> MVar([Int]) 
 run x y mapaChan puntosJugadores estadoConcumones = do
 	putStrLn ("Corriendo Mapa")
 	putStrLn ("Dimensiones: [" ++ show(x) ++ "x" ++ show(y) ++ "]")
+	
+	let casillas = take (x*y) (repeat 0)
+	let indices = take (length casillas) (iterate (1+) 0)
+	let mapa = zip indices casillas
+
 	forever $ do
 
 		accion <- readChan mapaChan
@@ -25,14 +30,20 @@ run x y mapaChan puntosJugadores estadoConcumones = do
 					moverConcumon (getId accion)
 		else if (esJugador accion)
 			then do 
-				crearJugador (getId accion)				
+				crearJugador mapa (getId accion)				
 			else do 
 				crearConcumon (getId accion)
 
 		signalQSem (getSem accion)
 
 
-
+findEmptySlot :: [(Int,Int)] -> Int
+findEmptySlot mapa = do
+	let emptySlots = filter ((==0).snd) mapa
+	if null emptySlots
+		then (-1)
+		else	
+			fst (head emptySlots)
 
 moverJugador :: Int  -> MVar([Int]) -> IO()
 moverJugador idJugador puntosJugadores = do
@@ -50,9 +61,11 @@ eliminarConcumon estadoConcumones idConcumon = do
 	let newList = UtilList.safeReplaceElement list idConcumon 2
 	putMVar estadoConcumones newList
 
-crearJugador :: Int -> IO()
-crearJugador idJugador  = do
-	putStrLn ("Creando jugador " ++ show idJugador ++ " en Mapa")
+crearJugador :: [(Int,Int)] -> Int -> IO()
+crearJugador mapa idJugador  = do
+	let emptySlot = findEmptySlot mapa
+	putStrLn ("Creando jugador " ++ show idJugador ++ " en Posicion " ++ show emptySlot)
+
 
 crearConcumon :: Int -> IO()
 crearConcumon idConcumon  = do
