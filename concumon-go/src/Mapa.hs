@@ -15,7 +15,6 @@ run x y mapaChan puntosJugadores = do
 	putStrLn ("Dimensiones: [" ++ show(x) ++ "x" ++ show(y) ++ "]")
 	forever $ do
 
-		putStrLn ("Mapa esperando acciones")
 		accion <- readChan mapaChan
 
 		if (esMover accion)
@@ -35,20 +34,20 @@ run x y mapaChan puntosJugadores = do
 
 moverJugador :: Int  -> MVar([Int]) -> IO()
 moverJugador idJugador puntosJugadores = do
-	putStrLn ("Moviendo jugador " ++ show idJugador)
+	putStrLn ("Moviendo jugador " ++ show idJugador ++ " en Mapa")
 	updatePoints puntosJugadores idJugador 10
 
 moverConcumon :: Int -> IO()
 moverConcumon idConcumon = do
-	putStrLn ("Moviendo concumon " ++ show idConcumon)
+	putStrLn ("Moviendo concumon " ++ show idConcumon ++ " en Mapa")
 
 crearJugador :: Int -> IO()
 crearJugador idJugador  = do
-	putStrLn ("Creando jugador " ++ show idJugador)
+	putStrLn ("Creando jugador " ++ show idJugador ++ " en Mapa")
 
 crearConcumon :: Int -> IO()
 crearConcumon idConcumon  = do
-	putStrLn ("Creando concumon " ++ show idConcumon)
+	putStrLn ("Creando concumon " ++ show idConcumon ++ " en Mapa")
 
 
 esMover :: (Bool, Bool, Int, QSem) -> Bool
