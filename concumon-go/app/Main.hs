@@ -16,8 +16,8 @@ main = do
 	file <- readFile "config.txt"
 	fileList <- UtilFile.fileToList file
 
-	let xDim = UtilFile.getParameter fileList "width" 50
-	let yDim = UtilFile.getParameter fileList "height" 50
+	let rows = UtilFile.getParameter fileList "height" 50
+	let cols = UtilFile.getParameter fileList "width" 50
 	let tiempoMovConcumon = UtilFile.getParameter fileList "timeConcumon" 50
 	let maxConcumones = UtilFile.getParameter fileList "maxConcumones" 3
 	let maxJugadores = UtilFile.getParameter fileList "maxJugadores" 3
@@ -40,8 +40,8 @@ main = do
 	putMVar estadoConumonesMvar estadoConumones
 
 	putStrLn("Parametros: ")
-	putStrLn("Dimension X: " ++ show(xDim))
-	putStrLn("Dimension Y: " ++ show(yDim))
+	putStrLn("Filas: " ++ show(rows))
+	putStrLn("Columnas: " ++ show(cols))
 	putStrLn("Tiempo Movimiento Concumon: " ++ show(tiempoMovConcumon))
 	putStrLn("Cantidad total de jugadores: " ++ show(cantJugadores))
 	putStrLn("Cantidad maxima de jugadores en mapa: " ++ show(maxJugadores))
@@ -57,7 +57,7 @@ main = do
 	idAdminJugadores <- forkIO (AdminJugadores.run cantJugadores connectionChan)
 	idServidor <- forkIO (Servidor.run cantJugadores connectionChan mapaChan maxJugadoresSem listaIdJugadoresLibresMVar)
 	idNido <- forkIO (Nido.run maxConcumonesSem tiempoMovConcumon mapaChan estadoConumonesMvar)
-	idMapa <- forkIO (Mapa.run xDim yDim mapaChan listaPuntajeJugadoresMVar estadoConumonesMvar)
+	idMapa <- forkIO (Mapa.run rows cols mapaChan listaPuntajeJugadoresMVar estadoConumonesMvar)
 	idSysadmin <- forkIO (Sysadmin.run listaPuntajeJugadoresMVar)
 
 

@@ -20,6 +20,8 @@ run rows cols mapaChan puntosJugadores estadoConcumones = do
 	let mapaConc = zip indices casillas
 	let mapas = (mapaJug, mapaConc)
 
+	putStrLn (show (UtilList.getMapCoordinates 5 rows cols))
+
 	loopMapa mapas rows cols mapaChan puntosJugadores estadoConcumones
 
 		
@@ -50,7 +52,6 @@ loopMapa mapas rows cols mapaChan puntosJugadores estadoConcumones = do
 
 
 
-
 findEmptySlot :: [(Int,Int)] -> Int
 findEmptySlot mapa = do
 	let emptySlots = filter ((==(-1)).snd) mapa
@@ -76,14 +77,14 @@ moverJugador mapas rows cols idJugador puntosJugadores estadoConcumones = do
 		else do
 			let posicionJugador = fst (head casillaJugador)
 			let adyacentes = UtilList.getAdyacents posicionJugador rows cols
-			if null adyacentes
+			let adyacentesSinJugadores = filter (\x -> (getValueFromMapa mapaJug x) == (-1)) adyacentes
+			if null adyacentesSinJugadores
 				then do
 					putStrLn("No hay casillas adyacentes libres")
 					return mapas --No hay casillas adyacentes libres
 				else do
-					--TODO Filtrar las que tienen jugadores
 					--TODO: Agregar random para elegir la posicion!
-					let nuevaPosicion = head adyacentes 
+					let nuevaPosicion = head adyacentesSinJugadores 
 
 					putStrLn ("Moviendo jugador " ++ show idJugador ++ " a posicion " ++ show (UtilList.getMapCoordinates nuevaPosicion rows cols))
 
