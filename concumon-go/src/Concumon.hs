@@ -30,6 +30,8 @@ run maxConcumonesSem tiempoMov mapaChan idConcumon estadoConcumonMvar = do
 	UtilList.updateConcurrentList estadoConcumonMvar idConcumon 0
 	putStrLn ("Finalizando Concumon " ++ show(idConcumon))
 	signalQSem maxConcumonesSem
+
+
 	
 executeTask :: Int -> Int -> QSem -> Int -> Chan (Bool, Bool, Int, QSem) -> MVar([Int]) -> IO()
 executeTask n idConcumon concumonSem tiempoMov mapaChan estadoConcumonMvar = do
