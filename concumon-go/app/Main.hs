@@ -8,10 +8,13 @@ import Nido
 import Mapa
 import Sysadmin
 import UtilFile
+import System.Random
 
 main :: IO ()
 main = do
 
+	n <- randomRIO (0, 100 :: Int)
+	putStrLn (show n)
 
 	file <- readFile "config.txt"
 	fileList <- UtilFile.fileToList file
@@ -64,5 +67,3 @@ main = do
 	putStrLn("Presione Enter para finalizar ejecucion")
 	getLine
 	putStrLn("Finalizando ejecucion")
-
-

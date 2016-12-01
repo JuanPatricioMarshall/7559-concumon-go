@@ -18,7 +18,8 @@ run mapaChan maxJugadoresSem idJugador listaIdJugadoresLibresMVar puntosJugadore
 	waitQSem jugadorSem
 
 	putStrLn ("Jugador " ++ show idJugador ++ " empezando a jugar")
-	executeTask 1 idJugador jugadorSem mapaChan
+	let iteraciones = 5 -- Hacer random
+	executeTask iteraciones idJugador jugadorSem mapaChan
 
 
 	--Mensaje a mapa para que me libere del mapa
@@ -46,7 +47,6 @@ executeTask n idJugador jugadorSem mapaChan = do
 			writeChan mapaChan accionMoverJugador
 			waitQSem jugadorSem
 			threadDelay	10000000 -- TODO Random
-			let rnd = 0 -- TODO Random
-			executeTask rnd idJugador jugadorSem mapaChan 
+			executeTask (n-1) idJugador jugadorSem mapaChan 
 
 
