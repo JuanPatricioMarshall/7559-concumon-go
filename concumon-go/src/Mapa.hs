@@ -9,8 +9,8 @@ import UtilList
 
 
 -- mapaChan: (Mover(True) o Crear(False), Jugador(True) o Concumon(False), id, semaforo del jugador/concumon)
-run :: Int -> Int -> Chan (Bool, Bool, Int, QSem) -> MVar([Int]) -> IO ()
-run x y mapaChan puntosJugadores = do
+run :: Int -> Int -> Chan (Bool, Bool, Int, QSem) -> MVar([Int]) -> MVar([Int]) -> IO ()
+run x y mapaChan puntosJugadores estadoConcumones = do
 	putStrLn ("Corriendo Mapa")
 	putStrLn ("Dimensiones: [" ++ show(x) ++ "x" ++ show(y) ++ "]")
 	forever $ do
@@ -32,6 +32,8 @@ run x y mapaChan puntosJugadores = do
 		signalQSem (getSem accion)
 
 
+
+
 moverJugador :: Int  -> MVar([Int]) -> IO()
 moverJugador idJugador puntosJugadores = do
 	putStrLn ("Moviendo jugador " ++ show idJugador ++ " en Mapa")
@@ -40,6 +42,13 @@ moverJugador idJugador puntosJugadores = do
 moverConcumon :: Int -> IO()
 moverConcumon idConcumon = do
 	putStrLn ("Moviendo concumon " ++ show idConcumon ++ " en Mapa")
+
+eliminarConcumon:: MVar([Int]) -> Int -> IO()
+eliminarConcumon estadoConcumones idConcumon = do
+	putStrLn ("Eliminando Concumon " ++ show idConcumon)
+	list <- takeMVar estadoConcumones
+	let newList = UtilList.safeReplaceElement list idConcumon 2
+	putMVar estadoConcumones newList
 
 crearJugador :: Int -> IO()
 crearJugador idJugador  = do

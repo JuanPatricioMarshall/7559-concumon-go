@@ -7,19 +7,23 @@ import Servidor
 import Nido
 import Mapa
 import Sysadmin
+import UtilFile
 
-data Player = Player { id :: String
-                     , position :: Int
-                     } deriving Show
 
 main :: IO ()
 main = do
-	let xDim = 50
-	let yDim = 50
-	let tiempoMovConcumon = 5
+
+
+	file <- readFile "config.txt"
+	fileList <- UtilFile.fileToList file
+
+	let xDim = UtilFile.getParameter fileList "width" 50
+	let yDim = UtilFile.getParameter fileList "height" 50
+	let tiempoMovConcumon = UtilFile.getParameter fileList "timeConcumon" 50
+	let maxConcumones = UtilFile.getParameter fileList "maxConcumones" 3
+	let maxJugadores = UtilFile.getParameter fileList "maxJugadores" 3
+
 	let cantJugadores = 100
-	let maxJugadores = 3
-	let maxConcumones = 3
 
 	-- Creo Listas de Jugadores Libres
 	let listaIdJugadoresLibres = take (maxJugadores) (repeat True)	
@@ -31,10 +35,10 @@ main = do
 	listaPuntajeJugadoresMVar <- newEmptyMVar
 	putMVar listaPuntajeJugadoresMVar listaPuntajeJugadores
 
-	-- Listas de Concumones Libres
-	let listaIdConcumonesLibres = take (maxConcumones) (repeat True)	
-	listaIdConcumonesLibresMvar <- newEmptyMVar
-	putMVar listaIdConcumonesLibresMvar listaIdConcumonesLibres
+	-- Listas de Estado Concumon { 0 Free, 1 Live, 2 Dead}
+	let estadoConumones = take (maxConcumones) (repeat 0)	
+	estadoConumonesMvar <- newEmptyMVar
+	putMVar estadoConumonesMvar estadoConumones
 
 	putStrLn("Parametros: ")
 	putStrLn("Dimension X: " ++ show(xDim))
@@ -53,8 +57,8 @@ main = do
 
 	idAdminJugadores <- forkIO (AdminJugadores.run cantJugadores connectionChan)
 	idServidor <- forkIO (Servidor.run cantJugadores connectionChan mapaChan maxJugadoresSem listaIdJugadoresLibresMVar)
-	idNido <- forkIO (Nido.run maxConcumonesSem tiempoMovConcumon mapaChan listaIdConcumonesLibresMvar)
-	idMapa <- forkIO (Mapa.run xDim yDim mapaChan listaPuntajeJugadoresMVar)
+	idNido <- forkIO (Nido.run maxConcumonesSem tiempoMovConcumon mapaChan estadoConumonesMvar)
+	idMapa <- forkIO (Mapa.run xDim yDim mapaChan listaPuntajeJugadoresMVar estadoConumonesMvar)
 	idSysadmin <- forkIO (Sysadmin.run listaPuntajeJugadoresMVar)
 
 
