@@ -1,0 +1,1 @@
+[("width",5),("height",5),("timeConcumon",10000000),("maxConcumones",5),("maxJugadores",5)]

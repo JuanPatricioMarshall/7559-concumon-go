@@ -7,6 +7,7 @@ import Servidor
 import Nido
 import Mapa
 import Sysadmin
+import UtilFile
 
 data Player = Player { id :: String
                      , position :: Int
@@ -14,13 +15,19 @@ data Player = Player { id :: String
 
 main :: IO ()
 main = do
-	let xDim = 50
-	let yDim = 50
-	let tiempoMovConcumon = 5
-	let cantJugadores = 100
-	let maxJugadores = 3
-	let maxConcumones = 3
 
+
+	file <- readFile "config.txt"
+	fileList <- UtilFile.fileToList file
+
+	let xDim = UtilFile.getParameter fileList "width" 50
+	let yDim = UtilFile.getParameter fileList "height" 50
+	let tiempoMovConcumon = UtilFile.getParameter fileList "timeConcumon" 50
+	let maxConcumones = UtilFile.getParameter fileList "maxConcumones" 3
+	let maxJugadores = UtilFile.getParameter fileList "maxJugadores" 3
+
+	let cantJugadores = 100
+	
 	-- Creo Listas de Jugadores Libres
 	let listaIdJugadoresLibres = take (maxJugadores) (repeat True)	
 	listaIdJugadoresLibresMVar <- newEmptyMVar

@@ -24,7 +24,7 @@ run maxConcumonesSem tiempoMov mapaChan idConcumon listaIdConcumonesLibresMvar =
 	writeChan mapaChan accionMoverConcumon
 	waitQSem concumonSem
 
-	threadDelay	10000000
+	threadDelay	tiempoMov
 
 	-- Actualizo Lista de Concumones Libres - Libero ID
 	UtilList.updateConcurrentList listaIdConcumonesLibresMvar idConcumon True
