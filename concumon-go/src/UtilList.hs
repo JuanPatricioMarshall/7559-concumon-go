@@ -2,7 +2,9 @@ module UtilList
     ( UtilList.safeReplaceElement,
       UtilList.getIndexOfFirstBoolEqualTo,
       UtilList.getIndexOfFirstIntEqualTo,
-      UtilList.updateConcurrentList
+      UtilList.updateConcurrentList,
+      UtilList.getAdyacents,
+      UtilList.getAdyacentPosition
     ) where
 
 import Control.Monad
@@ -70,3 +72,73 @@ replaceElement
 replaceElement xs i x = fore ++ (x : aft)
   where fore = take i xs
         aft = drop (i+1) xs
+
+getAdyacents :: Integer -> Integer -> Integer -> IO ()
+getAdyacents position rows columns = do
+	let list = []
+	let rowPos = position `div` rows
+	let colPos = position `mod` columns
+
+	--topLeft 
+	let i = rowPos - 1
+	let j = colPos - 1
+
+	let topLeft = getAdyacentPosition i j rows columns
+	when (topLeft >= 0) $ putStrLn (show(topLeft))
+	
+	--top
+	let i = rowPos - 1
+	let j = colPos
+
+	let top = getAdyacentPosition i j rows columns
+	when (top >= 0) $ putStrLn (show(top))
+
+	--topRigth
+	let i = rowPos - 1
+	let j = colPos + 1
+
+	let topRigth = getAdyacentPosition i j rows columns
+	when (topRigth >= 0) $ putStrLn (show(topRigth))
+
+	--middleLeft
+	let i = rowPos
+	let j = colPos - 1
+
+	let middleLeft = getAdyacentPosition i j rows columns
+	when (middleLeft >= 0) $ putStrLn (show(middleLeft))
+
+	--middleRigth
+	let i = rowPos
+	let j = colPos + 1
+
+	let middleRigth = getAdyacentPosition i j rows columns
+	when (middleRigth >= 0) $ putStrLn (show(middleRigth))
+	
+	--bottomLeft
+	let i = rowPos + 1
+	let j = colPos - 1
+
+	let bottomLeft = getAdyacentPosition i j rows columns
+	when (bottomLeft >= 0) $ putStrLn (show(bottomLeft))
+
+	--bottom
+	let i = rowPos + 1
+	let j = colPos
+
+	let bottom = getAdyacentPosition i j rows columns
+	when (bottom >= 0) $ putStrLn (show(bottom))
+
+	--bottomRight
+	let i = rowPos + 1
+	let j = colPos + 1
+
+	let bottomRight = getAdyacentPosition i j rows columns
+	when (bottomRight >= 0) $ putStrLn (show(bottomRight))
+
+
+getAdyacentPosition :: Integer -> Integer -> Integer -> Integer -> Integer
+getAdyacentPosition i j rows columns =
+	if i >= 0 && j >=0 && i < rows && j < columns
+	 then i * columns + j
+	else
+	 -1
