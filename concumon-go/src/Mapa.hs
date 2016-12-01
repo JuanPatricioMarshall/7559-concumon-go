@@ -20,27 +20,35 @@ run rows cols mapaChan puntosJugadores estadoConcumones = do
 	let mapaConc = zip indices casillas
 	let mapas = (mapaJug, mapaConc)
 
-	forever $ do
+	loopMapa mapas rows cols mapaChan puntosJugadores estadoConcumones
 
-		accion <- readChan mapaChan
+		
 
-		mapasUpdated <- do {
-			if (esMover accion)
-				then do if(esJugador accion)
-					then 
-						moverJugador mapas rows cols (getId accion) puntosJugadores estadoConcumones
-					else 
-						moverConcumon mapas (getId accion)
-			else if (esJugador accion)
+loopMapa :: ([(Int,Int)], [(Int,Int)]) -> Int -> Int -> Chan (Bool, Bool, Int, QSem) -> MVar([Int]) -> MVar([Int]) -> IO ()
+loopMapa mapas rows cols mapaChan puntosJugadores estadoConcumones = do
+	accion <- readChan mapaChan
+
+	mapasUpdated <- do {
+		if (esMover accion)
+			then if(esJugador accion)
 				then 
-					crearJugador mapas rows cols (getId accion)				
+					moverJugador mapas rows cols (getId accion) puntosJugadores estadoConcumones
 				else 
-					crearConcumon mapas (getId accion)
-		}
+					moverConcumon mapas (getId accion)
+		else if (esJugador accion)
+			then 
+				crearJugador mapas rows cols (getId accion)				
+			else 
+				crearConcumon mapas (getId accion)
+	}
 
-		let mapas = mapasUpdated
+	let mapas = mapasUpdated
 
-		signalQSem (getSem accion)
+	signalQSem (getSem accion)
+
+	loopMapa mapas rows cols mapaChan puntosJugadores estadoConcumones
+
+
 
 
 findEmptySlot :: [(Int,Int)] -> Int
