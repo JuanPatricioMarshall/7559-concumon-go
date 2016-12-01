@@ -9,7 +9,6 @@ import Mapa
 import Sysadmin
 import UtilFile
 
-
 main :: IO ()
 main = do
 
