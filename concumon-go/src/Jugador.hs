@@ -39,11 +39,11 @@ executeTask n idJugador jugadorSem mapaChan = do
 		then do
 			return ()
 		else do
-				let accionMoverJugador = (1, True, idJugador, jugadorSem)
-				writeChan mapaChan accionMoverJugador
-				waitQSem jugadorSem
-				threadDelay	10000000 -- TODO Random
-				let rnd = 0 -- TODO Random
-				executeTask rnd idJugador jugadorSem mapaChan 
+			let accionMoverJugador = (1, True, idJugador, jugadorSem)
+			writeChan mapaChan accionMoverJugador
+			waitQSem jugadorSem
+			threadDelay	10000000 -- TODO Random
+			let rnd = 0 -- TODO Random
+			executeTask rnd idJugador jugadorSem mapaChan 
 
 
