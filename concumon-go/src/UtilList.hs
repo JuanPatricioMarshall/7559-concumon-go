@@ -73,9 +73,9 @@ replaceElement xs i x = fore ++ (x : aft)
   where fore = take i xs
         aft = drop (i+1) xs
 
-getAdyacents :: Integer -> Integer -> Integer -> IO ()
+getAdyacents :: Int -> Int -> Int -> [Int]
 getAdyacents position rows columns = do
-	let list = []
+	let list = [-1,-1,-1,-1,-1,-1,-1,-1]
 	let rowPos = position `div` rows
 	let colPos = position `mod` columns
 
@@ -83,60 +83,69 @@ getAdyacents position rows columns = do
 	let i = rowPos - 1
 	let j = colPos - 1
 
-	let topLeft = getAdyacentPosition i j rows columns
-	when (topLeft >= 0) $ putStrLn (show(topLeft))
-	
+	let topLeft = getAdyacentPosition i j rows columns	
+	let list1 = safeReplaceElement list 0 topLeft
+	--when (topLeft >= 0) $ putStrLn (show(topLeft))
+
 	--top
 	let i = rowPos - 1
 	let j = colPos
 
 	let top = getAdyacentPosition i j rows columns
-	when (top >= 0) $ putStrLn (show(top))
+	let list2 = safeReplaceElement list1 1 top
 
 	--topRigth
 	let i = rowPos - 1
 	let j = colPos + 1
 
 	let topRigth = getAdyacentPosition i j rows columns
-	when (topRigth >= 0) $ putStrLn (show(topRigth))
+	let list3 = safeReplaceElement list2 2 topRigth
 
 	--middleLeft
 	let i = rowPos
 	let j = colPos - 1
 
 	let middleLeft = getAdyacentPosition i j rows columns
-	when (middleLeft >= 0) $ putStrLn (show(middleLeft))
+	let list4 = safeReplaceElement list3 3 middleLeft
 
 	--middleRigth
 	let i = rowPos
 	let j = colPos + 1
 
 	let middleRigth = getAdyacentPosition i j rows columns
-	when (middleRigth >= 0) $ putStrLn (show(middleRigth))
+	let list5 = safeReplaceElement list4 4 middleRigth
 	
 	--bottomLeft
 	let i = rowPos + 1
 	let j = colPos - 1
 
 	let bottomLeft = getAdyacentPosition i j rows columns
-	when (bottomLeft >= 0) $ putStrLn (show(bottomLeft))
+	let list6 = safeReplaceElement list5 5 bottomLeft
 
 	--bottom
 	let i = rowPos + 1
 	let j = colPos
 
 	let bottom = getAdyacentPosition i j rows columns
-	when (bottom >= 0) $ putStrLn (show(bottom))
+	let list7 = safeReplaceElement list6 6 bottom
 
 	--bottomRight
 	let i = rowPos + 1
 	let j = colPos + 1
 
 	let bottomRight = getAdyacentPosition i j rows columns
-	when (bottomRight >= 0) $ putStrLn (show(bottomRight))
+	let list8 = safeReplaceElement list7 7 bottomRight
+
+	let filterList = filter (>=0) list8	
+	if null filterList
+		then
+			[]
+		else
+			filterList
 
 
-getAdyacentPosition :: Integer -> Integer -> Integer -> Integer -> Integer
+
+getAdyacentPosition :: Int -> Int -> Int -> Int -> Int
 getAdyacentPosition i j rows columns =
 	if i >= 0 && j >=0 && i < rows && j < columns
 	 then i * columns + j
