@@ -23,8 +23,6 @@ run rows cols mapaChan puntosJugadores estadoConcumones = do
 	let mapaConc = take (rows*cols) (repeat (-1))
 	let mapas = (mapaJug, mapaConc)
 
-	putStrLn (show (UtilList.getMapCoordinates 5 rows cols))
-
 	loopMapa mapas rows cols mapaChan puntosJugadores estadoConcumones
 
 		
@@ -126,19 +124,20 @@ moverJugador mapas rows cols idJugador puntosJugadores estadoConcumones = do
 
 					let newMapaJugAux = updateElemMapa mapaJug posicionJugador (-1)
 					let newMapaJug = updateElemMapa newMapaJugAux nuevaPosicion idJugador
-					if (getValueFromMapa mapaConc nuevaPosicion >= 0)
+					let idConcumon = getValueFromMapa mapaConc nuevaPosicion
+					if (idConcumon >= 0)
 						then do
 							let newMapaConc = updateElemMapa mapaConc nuevaPosicion (-1)
-							handleColision mapaConc nuevaPosicion idJugador puntosJugadores estadoConcumones
+							handleColision idJugador idConcumon puntosJugadores estadoConcumones
 							return (newMapaJug, newMapaConc)
 						else do
 							return (newMapaJug, mapaConc)
 					
 					
 
-handleColision :: [Int] -> Int -> Int -> MVar([Int]) -> MVar([Int]) -> IO()
-handleColision mapaConc pos idJugador puntosJugadores estadoConcumones = do
-	let idConcumon = getValueFromMapa mapaConc pos
+handleColision :: Int -> Int -> MVar([Int]) -> MVar([Int]) -> IO()
+handleColision idJugador idConcumon puntosJugadores estadoConcumones = do
+	putStrLn("Jugador " ++ show idJugador ++ " atrapo al concumon " ++ show idConcumon)
 	eliminarConcumon estadoConcumones idConcumon
 	updatePoints puntosJugadores idJugador 10
 
@@ -159,10 +158,11 @@ crearJugador mapas rows cols idJugador  = do
 crearConcumon :: ([Int], [Int]) -> Int -> Int -> Int -> IO ([Int], [Int])
 crearConcumon mapas rows cols idConcumon  = do
 	let posicionVacia = buscarPosVacia mapas
+	let mapaJug = fst mapas
 	let mapaConc = snd mapas
 	putStrLn ("Creando concumon " ++ show idConcumon ++ " en Posicion " ++ show (UtilList.getMapCoordinates posicionVacia rows cols))
-	--TODO agregar en mapa!
-	return mapas
+	let newMapaConc = updateElemMapa mapaConc posicionVacia idConcumon
+	return (mapaJug, newMapaConc)
 
 
 eliminarConcumon:: MVar([Int]) -> Int -> IO()

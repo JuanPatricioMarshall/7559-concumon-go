@@ -14,7 +14,7 @@ run maxConcumonesSem tiempoMovConcumon mapaChan estadoConcumonesMvar = do
 	-- TODO: Ver si esta bien con forever, o usar otra cosa
 	forever $ do
 		waitQSem maxConcumonesSem
-		putStrLn "Creando concumon"
+		putStrLn "Nido: Creando concumon"
 
 		-- Actualizo Lista de Concumones Libres - Asigno ID  { 0 Free, 1 Live, 2 Dead}
 		estadoConcumones <- takeMVar estadoConcumonesMvar

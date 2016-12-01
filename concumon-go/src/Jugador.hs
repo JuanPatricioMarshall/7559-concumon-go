@@ -7,17 +7,17 @@ import Data.Tuple
 import UtilList
 
 
-run :: Chan (Int, Bool, Int, QSem) -> QSem -> Int -> MVar([Bool]) -> IO ()
-run mapaChan maxJugadoresSem idJugador listaIdJugadoresLibresMVar = do
-	putStrLn ("Corriendo Jugador")
+run :: Chan (Int, Bool, Int, QSem) -> QSem -> Int -> MVar([Bool]) -> MVar([Int]) -> IO ()
+run mapaChan maxJugadoresSem idJugador listaIdJugadoresLibresMVar puntosJugadores = do
+	putStrLn ("Iniciando jugador " ++ show idJugador)
 	jugadorSem <- newQSem 0
 
 	let accionCrearJugador = (0, True, idJugador, jugadorSem)
 	writeChan mapaChan accionCrearJugador
-
+		
 	waitQSem jugadorSem
 
-	putStrLn ("Empezando a Jugar")
+	putStrLn ("Jugador " ++ show idJugador ++ " empezando a jugar")
 	executeTask 1 idJugador jugadorSem mapaChan
 
 
@@ -26,10 +26,13 @@ run mapaChan maxJugadoresSem idJugador listaIdJugadoresLibresMVar = do
 	writeChan mapaChan accionBorrarJugador
 	waitQSem jugadorSem
 
+	--Poniendo en cero los puntos del jugador antes de irse
+	UtilList.updateConcurrentList puntosJugadores idJugador 0
+
 	-- Actualizo Lista de Jugadores Libres - Libero ID
 	UtilList.updateConcurrentList listaIdJugadoresLibresMVar idJugador True
 
-	putStrLn ("Termino de jugar, Jugador " ++ show(idJugador))
+	putStrLn ("Termino de jugar el Jugador " ++ show(idJugador))
 	signalQSem maxJugadoresSem
 
 

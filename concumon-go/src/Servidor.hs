@@ -8,8 +8,8 @@ import Control.Monad
 import Jugador
 import UtilList
 
-run :: Int -> Chan String -> Chan (Int, Bool, Int, QSem) -> QSem -> MVar([Bool]) -> IO ()
-run cantJugadores connectionChan mapaChan maxJugadoresSem listaIdJugadoresLibresMVar  = do
+run :: Int -> Chan String -> Chan (Int, Bool, Int, QSem) -> QSem -> MVar([Bool]) -> MVar([Int]) -> IO ()
+run cantJugadores connectionChan mapaChan maxJugadoresSem listaIdJugadoresLibresMVar puntosJugadores = do
 	putStrLn ("Corriendo Servidor")
 	forever $ do		
 		waitQSem maxJugadoresSem
@@ -22,7 +22,6 @@ run cantJugadores connectionChan mapaChan maxJugadoresSem listaIdJugadoresLibres
 		putMVar listaIdJugadoresLibresMVar newListaIdJugadoresLibres
 
 		putStrLn line
-		putStrLn ("Agregando nuevo jugador.")
-		idJugador <- forkIO(Jugador.run mapaChan maxJugadoresSem idJugador listaIdJugadoresLibresMVar)
-		putStrLn "Se agrego un nuevo jugador"
+		putStrLn ("Server: Agregando nuevo jugador.")
+		forkIO(Jugador.run mapaChan maxJugadoresSem idJugador listaIdJugadoresLibresMVar puntosJugadores)
 	putStrLn "Finalizando servidor"

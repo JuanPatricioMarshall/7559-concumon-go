@@ -9,7 +9,7 @@ import UtilList
 
 run :: QSem -> Int -> Chan (Int, Bool, Int, QSem) -> Int -> MVar([Int])-> IO ()
 run maxConcumonesSem tiempoMov mapaChan idConcumon estadoConcumonMvar = do
-	putStrLn ("Corriendo Concumon")
+	putStrLn ("Iniciando concumon " ++ show idConcumon)
 	concumonSem <- newQSem 0
 
 	let accionCrearConcumon = (0, False, idConcumon, concumonSem)
@@ -17,8 +17,6 @@ run maxConcumonesSem tiempoMov mapaChan idConcumon estadoConcumonMvar = do
 
 	waitQSem concumonSem
 	threadDelay	1000000
-
-	putStrLn ("Soy un concumon en el mapa")
 
 	estadoConcumonList <- readMVar estadoConcumonMvar
 	let estadoConcumon = estadoConcumonList!!idConcumon
