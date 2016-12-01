@@ -36,8 +36,8 @@ executeTask n idJugador jugadorSem mapaChan = do
 				let accionMoverJugador = (True, True, idJugador, jugadorSem)
 				writeChan mapaChan accionMoverJugador
 				waitQSem jugadorSem
-				threadDelay	10000000 -- Random
-				let rnd = 1 -- TODO
+				threadDelay	10000000 -- TODO Random
+				let rnd = 0 -- TODO Random
 				executeTask rnd idJugador jugadorSem mapaChan 
 
 

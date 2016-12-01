@@ -14,7 +14,7 @@ run rows cols mapaChan puntosJugadores estadoConcumones = do
 	putStrLn ("Corriendo Mapa")
 	putStrLn ("Dimensiones: [" ++ show(rows) ++ "x" ++ show(cols) ++ "]")
 	
-	let casillas = take (rows*cols) (repeat 0)
+	let casillas = take (rows*cols) (repeat (-1))
 	let indices = take (length casillas) (iterate (1+) 0)
 	let mapa = zip indices casillas
 
@@ -39,7 +39,7 @@ run rows cols mapaChan puntosJugadores estadoConcumones = do
 
 findEmptySlot :: [(Int,Int)] -> Int
 findEmptySlot mapa = do
-	let emptySlots = filter ((==0).snd) mapa
+	let emptySlots = filter ((==(-1)).snd) mapa
 	if null emptySlots
 		then (-1)
 		else	
@@ -65,9 +65,9 @@ moverJugador mapa rows cols idJugador puntosJugadores = do
 
 					--TODO: Agregar random para elegir la posicion!
 					let nuevaPosicion = head adyacentes
-
-
-
+					let mapa = updateElemMapa mapa posicionJugador (-1)
+					let mapa = updateElemMapa mapa nuevaPosicion idJugador
+					
 					handleColision idJugador puntosJugadores
 
 handleColision :: Int -> MVar([Int]) -> IO()
@@ -117,3 +117,7 @@ updatePoints listaPuntos idJugador points = do
 	let newPoints = actualPoints + points
 	let newList = UtilList.safeReplaceElement list idJugador newPoints
 	putMVar listaPuntos newList
+
+
+updateElemMapa :: [(Int,Int)] -> Int -> Int -> [(Int,Int)]
+updateElemMapa mapa pos value = map (\x -> if ((fst x) == pos) then (fst x, value) else x) mapa

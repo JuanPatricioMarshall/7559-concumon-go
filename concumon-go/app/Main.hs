@@ -63,6 +63,6 @@ main = do
 
 	putStrLn("Presione Enter para finalizar ejecucion")
 	getLine
-	putStrLn("finalizando ejecucion")
+	putStrLn("Finalizando ejecucion")
 
 
