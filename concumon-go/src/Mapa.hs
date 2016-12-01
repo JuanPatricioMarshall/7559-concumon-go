@@ -14,10 +14,13 @@ run rows cols mapaChan puntosJugadores estadoConcumones = do
 	putStrLn ("Corriendo Mapa")
 	putStrLn ("Dimensiones: [" ++ show(rows) ++ "x" ++ show(cols) ++ "]")
 	
-	let casillas = take (rows*cols) (repeat (-1))
-	let indices = take (length casillas) (iterate (1+) 0)
-	let mapaJug = zip indices casillas
-	let mapaConc = zip indices casillas
+--	let casillas = take (rows*cols) (repeat (-1))
+--	let indices = take (length casillas) (iterate (1+) 0)
+--	let mapaJug = zip indices casillas
+--	let mapaConc = zip indices casillas
+
+	let mapaJug = take (rows*cols) (repeat (-1))
+	let mapaConc = take (rows*cols) (repeat (-1))
 	let mapas = (mapaJug, mapaConc)
 
 	putStrLn (show (UtilList.getMapCoordinates 5 rows cols))
@@ -26,7 +29,7 @@ run rows cols mapaChan puntosJugadores estadoConcumones = do
 
 		
 
-loopMapa :: ([(Int,Int)], [(Int,Int)]) -> Int -> Int -> Chan (Bool, Bool, Int, QSem) -> MVar([Int]) -> MVar([Int]) -> IO ()
+loopMapa :: ([Int], [Int]) -> Int -> Int -> Chan (Bool, Bool, Int, QSem) -> MVar([Int]) -> MVar([Int]) -> IO ()
 loopMapa mapas rows cols mapaChan puntosJugadores estadoConcumones = do
 	accion <- readChan mapaChan
 
@@ -41,7 +44,7 @@ loopMapa mapas rows cols mapaChan puntosJugadores estadoConcumones = do
 			then 
 				crearJugador mapas rows cols (getId accion)				
 			else 
-				crearConcumon mapas (getId accion)
+				crearConcumon mapas rows cols (getId accion)
 	}
 
 	let mapas = mapasUpdated
@@ -52,32 +55,43 @@ loopMapa mapas rows cols mapaChan puntosJugadores estadoConcumones = do
 
 
 
-findEmptySlot :: [(Int,Int)] -> Int
+findEmptySlot :: [Int] -> Int
 findEmptySlot mapa = do
-	let emptySlots = filter ((==(-1)).snd) mapa
+	let emptySlots = filterMap mapa (-1)
 	if null emptySlots
 		then (-1)
-		else	
+		else
 			--Siempre se devuelve la primer posicion de las posiciones vacias. TODO: Ver como hacer que devuelva random.
-			fst (head emptySlots)
+			head emptySlots
 
+--Devuelve posiciones donde el valor del mapa es == value
+filterMap :: [Int] -> Int -> [Int]
+filterMap mapa value = (filter (\x -> ((getValueFromMapa mapa x) == value)) [0..((length mapa)-1)])
+
+--	let indices = [0..((length mapa)-1)]
+
+	--return (filter (\x -> ((getValueFromMapa mapa x) == value)) indices)
+--	return indices
+
+filterAdyacentes :: [Int] -> [Int] -> [Int]
+filterAdyacentes mapa adyacentes = (filter (\x -> (getValueFromMapa mapa x) == (-1)) adyacentes)
 
 
 --TODO Hacer que devuelvan mapa
-moverJugador :: ([(Int,Int)], [(Int,Int)]) -> Int -> Int -> Int -> MVar([Int]) -> MVar([Int]) -> IO ([(Int,Int)], [(Int,Int)])
+moverJugador :: ([Int], [Int]) -> Int -> Int -> Int -> MVar([Int]) -> MVar([Int]) -> IO ([Int], [Int])
 moverJugador mapas rows cols idJugador puntosJugadores estadoConcumones = do
 	putStrLn ("Intentando a mover jugador " ++ show idJugador ++ " en Mapa")
 	let mapaJug = fst mapas
 	let mapaConc = snd mapas
-	let casillaJugador = filter ((==idJugador).snd) mapaJug
+	let casillaJugador = filterMap mapaJug idJugador
 	if null casillaJugador
 		then do
 			putStrLn("No se encontro al jugador en el mapa")
 			return mapas --No se encontro al jugador en el mapaJug
 		else do
-			let posicionJugador = fst (head casillaJugador)
+			let posicionJugador = head casillaJugador
 			let adyacentes = UtilList.getAdyacents posicionJugador rows cols
-			let adyacentesSinJugadores = filter (\x -> (getValueFromMapa mapaJug x) == (-1)) adyacentes
+			let adyacentesSinJugadores = filterAdyacentes mapaJug adyacentes
 			if null adyacentesSinJugadores
 				then do
 					putStrLn("No hay casillas adyacentes libres")
@@ -85,8 +99,9 @@ moverJugador mapas rows cols idJugador puntosJugadores estadoConcumones = do
 				else do
 					--TODO: Agregar random para elegir la posicion!
 					let nuevaPosicion = head adyacentesSinJugadores 
-
-					putStrLn ("Moviendo jugador " ++ show idJugador ++ " a posicion " ++ show (UtilList.getMapCoordinates nuevaPosicion rows cols))
+					putStrLn("adyacentes " ++ show adyacentes)
+					putStrLn("adyacentes sin jug " ++ show adyacentesSinJugadores)
+					putStrLn ("Moviendo jugador " ++ show idJugador ++ " de " ++ show (UtilList.getMapCoordinates posicionJugador rows cols) ++ " a " ++ show (UtilList.getMapCoordinates nuevaPosicion rows cols))
 
 					let newMapaJugAux = updateElemMapa mapaJug posicionJugador (-1)
 					let newMapaJug = updateElemMapa newMapaJugAux nuevaPosicion idJugador
@@ -100,13 +115,13 @@ moverJugador mapas rows cols idJugador puntosJugadores estadoConcumones = do
 					
 					
 
-handleColision :: [(Int,Int)] -> Int -> Int -> MVar([Int]) -> MVar([Int]) -> IO()
+handleColision :: [Int] -> Int -> Int -> MVar([Int]) -> MVar([Int]) -> IO()
 handleColision mapaConc pos idJugador puntosJugadores estadoConcumones = do
 	let idConcumon = getValueFromMapa mapaConc pos
 	eliminarConcumon estadoConcumones idConcumon
 	updatePoints puntosJugadores idJugador 10
 
-moverConcumon :: ([(Int,Int)], [(Int,Int)]) -> Int -> IO ([(Int,Int)], [(Int,Int)])
+moverConcumon :: ([Int], [Int]) -> Int -> IO ([Int], [Int])
 moverConcumon mapas idConcumon = do
 	putStrLn ("Moviendo concumon " ++ show idConcumon ++ " en Mapa")
 	return mapas
@@ -118,9 +133,8 @@ eliminarConcumon estadoConcumones idConcumon = do
 	let newList = UtilList.safeReplaceElement list idConcumon 2
 	putMVar estadoConcumones newList
 
-crearJugador :: ([(Int,Int)], [(Int,Int)]) -> Int -> Int -> Int -> IO ([(Int,Int)], [(Int,Int)])
+crearJugador :: ([Int], [Int]) -> Int -> Int -> Int -> IO ([Int], [Int])
 crearJugador mapas rows cols idJugador  = do
-
 	--TODO: Solo checkeo en mapaJug, habria que checkear en mapaConc. (o tener otro mapa compartido...)
 	let mapaJug = fst mapas
 	let emptySlot = findEmptySlot mapaJug
@@ -129,8 +143,11 @@ crearJugador mapas rows cols idJugador  = do
 	return (newMapaJug, snd mapas)
 
 
-crearConcumon :: ([(Int,Int)], [(Int,Int)]) -> Int -> IO ([(Int,Int)], [(Int,Int)])
-crearConcumon mapas idConcumon  = do
+crearConcumon :: ([Int], [Int]) -> Int -> Int -> Int -> IO ([Int], [Int])
+crearConcumon mapas rows cols idConcumon  = do
+	let mapaJug = fst mapas
+	let mapaConc = snd mapas
+
 	putStrLn ("Creando concumon " ++ show idConcumon ++ " en Mapa")
 	return mapas
 
@@ -156,9 +173,9 @@ updatePoints listaPuntos idJugador points = do
 	putMVar listaPuntos newList
 
 
-updateElemMapa :: [(Int,Int)] -> Int -> Int -> [(Int,Int)]
-updateElemMapa mapa pos value = UtilList.safeReplaceElement mapa pos (pos, value)
+updateElemMapa :: [Int] -> Int -> Int -> [Int]
+updateElemMapa mapa pos value = UtilList.safeReplaceElement mapa pos value
 
 
-getValueFromMapa :: [(Int,Int)] -> Int -> Int
-getValueFromMapa mapa pos = snd (mapa !! pos)
+getValueFromMapa :: [Int] -> Int -> Int
+getValueFromMapa mapa pos = mapa !! pos

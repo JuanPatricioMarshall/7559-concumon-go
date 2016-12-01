@@ -77,7 +77,7 @@ replaceElement xs i x = fore ++ (x : aft)
 getAdyacents :: Int -> Int -> Int -> [Int]
 getAdyacents position rows columns = do
 	let list = [-1,-1,-1,-1,-1,-1,-1,-1]
-	let rowPos = position `div` rows
+	let rowPos = position `div` columns
 	let colPos = position `mod` columns
 
 	--topLeft 
@@ -154,4 +154,4 @@ getAdyacentPosition i j rows columns =
 	 -1
 
 getMapCoordinates :: Int -> Int -> Int -> (Int, Int)
-getMapCoordinates pos rows cols = (pos `div` rows, pos `mod` cols)
+getMapCoordinates pos rows cols = (pos `div` cols, pos `mod` cols)
