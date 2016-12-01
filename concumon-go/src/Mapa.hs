@@ -43,6 +43,7 @@ findEmptySlot mapa = do
 	if null emptySlots
 		then (-1)
 		else	
+			--Siempre se devuelve la primer posicion de las posiciones vacias. Ver como hacer que devuelva random.
 			fst (head emptySlots)
 
 moverJugador :: Int  -> MVar([Int]) -> IO()
