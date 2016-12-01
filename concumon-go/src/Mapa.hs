@@ -65,7 +65,7 @@ loopMapa mapas rows cols mapaChan puntosJugadores estadoConcumones = do
 	loopMapa mapas rows cols mapaChan puntosJugadores estadoConcumones
 
 
-
+--Deprecated
 findEmptySlot :: [Int] -> Int
 findEmptySlot mapa = do
 	let emptySlots = filterMap mapa (-1)
@@ -75,12 +75,27 @@ findEmptySlot mapa = do
 			--Siempre se devuelve la primer posicion de las posiciones vacias. TODO: Ver como hacer que devuelva random.
 			head emptySlots
 
+
+buscarPosVacia :: ([Int],[Int]) -> Int
+buscarPosVacia mapas = do
+	let mapaJug = fst mapas
+	let mapaConc = snd mapas
+	let posicionesSinJugadores = filterMap mapaJug (-1)
+	let posicionesSinJugadoresNiConcumones = filterIndexList mapaConc posicionesSinJugadores (-1)
+
+	if null posicionesSinJugadoresNiConcumones
+		then (-1)
+		else
+			--Siempre se devuelve la primer posicion de las posiciones vacias. TODO: Ver como hacer que devuelva random.
+			head posicionesSinJugadoresNiConcumones
+
 --Devuelve posiciones donde el valor del mapa es == value
 filterMap :: [Int] -> Int -> [Int]
 filterMap mapa value = (filter (\x -> ((getValueFromMapa mapa x) == value)) [0..((length mapa)-1)])
 
-filterAdyacentes :: [Int] -> [Int] -> [Int]
-filterAdyacentes mapa adyacentes = (filter (\x -> (getValueFromMapa mapa x) == (-1)) adyacentes)
+--Devuelve la lista de indices filtrada por el valor buscado en el mapa
+filterIndexList :: [Int] -> [Int] -> Int -> [Int]
+filterIndexList mapa indexes value = (filter (\x -> (getValueFromMapa mapa x) == value) indexes)
 
 
 --TODO Hacer que devuelvan mapa
@@ -97,7 +112,7 @@ moverJugador mapas rows cols idJugador puntosJugadores estadoConcumones = do
 		else do
 			let posicionJugador = head casillaJugador
 			let adyacentes = UtilList.getAdyacents posicionJugador rows cols
-			let adyacentesSinJugadores = filterAdyacentes mapaJug adyacentes
+			let adyacentesSinJugadores = filterIndexList mapaJug adyacentes (-1)
 			if null adyacentesSinJugadores
 				then do
 					putStrLn("No hay casillas adyacentes libres")
@@ -105,8 +120,8 @@ moverJugador mapas rows cols idJugador puntosJugadores estadoConcumones = do
 				else do
 					--TODO: Agregar random para elegir la posicion!
 					let nuevaPosicion = head adyacentesSinJugadores 
-					putStrLn("adyacentes " ++ show adyacentes)
-					putStrLn("adyacentes sin jug " ++ show adyacentesSinJugadores)
+					--putStrLn("adyacentes " ++ show adyacentes)
+					--putStrLn("adyacentes sin jug " ++ show adyacentesSinJugadores)
 					putStrLn ("Moviendo jugador " ++ show idJugador ++ " de " ++ show (UtilList.getMapCoordinates posicionJugador rows cols) ++ " a " ++ show (UtilList.getMapCoordinates nuevaPosicion rows cols))
 
 					let newMapaJugAux = updateElemMapa mapaJug posicionJugador (-1)
@@ -134,20 +149,19 @@ moverConcumon mapas idConcumon = do
 
 crearJugador :: ([Int], [Int]) -> Int -> Int -> Int -> IO ([Int], [Int])
 crearJugador mapas rows cols idJugador  = do
-	--TODO: Solo checkeo en mapaJug, habria que checkear en mapaConc. (o tener otro mapa compartido...)
+	let posicionVacia = buscarPosVacia mapas
 	let mapaJug = fst mapas
-	let emptySlot = findEmptySlot mapaJug
-	putStrLn ("Creando jugador " ++ show idJugador ++ " en Posicion " ++ show (UtilList.getMapCoordinates emptySlot rows cols))
-	let newMapaJug = updateElemMapa mapaJug emptySlot idJugador 
+	putStrLn ("Creando jugador " ++ show idJugador ++ " en Posicion " ++ show (UtilList.getMapCoordinates posicionVacia rows cols))
+	let newMapaJug = updateElemMapa mapaJug posicionVacia idJugador 
 	return (newMapaJug, snd mapas)
 
 
 crearConcumon :: ([Int], [Int]) -> Int -> Int -> Int -> IO ([Int], [Int])
 crearConcumon mapas rows cols idConcumon  = do
-	let mapaJug = fst mapas
+	let posicionVacia = buscarPosVacia mapas
 	let mapaConc = snd mapas
-
-	putStrLn ("Creando concumon " ++ show idConcumon ++ " en Mapa")
+	putStrLn ("Creando concumon " ++ show idConcumon ++ " en Posicion " ++ show (UtilList.getMapCoordinates posicionVacia rows cols))
+	--TODO agregar en mapa!
 	return mapas
 
 
