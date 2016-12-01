@@ -20,12 +20,11 @@ run rows cols mapaChan puntosJugadores estadoConcumones = do
 	let mapaConc = zip indices casillas
 	let mapas = (mapaJug, mapaConc)
 
-
 	forever $ do
 
 		accion <- readChan mapaChan
 
-		mapasUpdated <-
+		mapasUpdated <- do {
 			if (esMover accion)
 				then do if(esJugador accion)
 					then 
@@ -37,6 +36,9 @@ run rows cols mapaChan puntosJugadores estadoConcumones = do
 					crearJugador mapas rows cols (getId accion)				
 				else 
 					crearConcumon mapas (getId accion)
+		}
+
+		let mapas = mapasUpdated
 
 		signalQSem (getSem accion)
 
@@ -55,7 +57,7 @@ findEmptySlot mapa = do
 --TODO Hacer que devuelvan mapa
 moverJugador :: ([(Int,Int)], [(Int,Int)]) -> Int -> Int -> Int -> MVar([Int]) -> MVar([Int]) -> IO ([(Int,Int)], [(Int,Int)])
 moverJugador mapas rows cols idJugador puntosJugadores estadoConcumones = do
-	putStrLn ("Empezando a mover jugador " ++ show idJugador ++ " en Mapa")
+	putStrLn ("Intentando a mover jugador " ++ show idJugador ++ " en Mapa")
 	let mapaJug = fst mapas
 	let mapaConc = snd mapas
 	let casillaJugador = filter ((==idJugador).snd) mapaJug
@@ -77,7 +79,8 @@ moverJugador mapas rows cols idJugador puntosJugadores estadoConcumones = do
 
 					putStrLn ("Moviendo jugador " ++ show idJugador ++ " a posicion " ++ show (UtilList.getMapCoordinates nuevaPosicion rows cols))
 
-					let newMapaJug = updateElemMapa (updateElemMapa mapaJug posicionJugador (-1)) nuevaPosicion idJugador
+					let newMapaJugAux = updateElemMapa mapaJug posicionJugador (-1)
+					let newMapaJug = updateElemMapa newMapaJugAux nuevaPosicion idJugador
 					if (getValueFromMapa mapaConc nuevaPosicion >= 0)
 						then do
 							let newMapaConc = updateElemMapa mapaConc nuevaPosicion (-1)
