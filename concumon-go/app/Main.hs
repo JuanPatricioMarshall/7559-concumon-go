@@ -9,9 +9,6 @@ import Mapa
 import Sysadmin
 import UtilFile
 
-data Player = Player { id :: String
-                     , position :: Int
-                     } deriving Show
 
 main :: IO ()
 main = do
@@ -27,7 +24,7 @@ main = do
 	let maxJugadores = UtilFile.getParameter fileList "maxJugadores" 3
 
 	let cantJugadores = 100
-	
+
 	-- Creo Listas de Jugadores Libres
 	let listaIdJugadoresLibres = take (maxJugadores) (repeat True)	
 	listaIdJugadoresLibresMVar <- newEmptyMVar
@@ -38,10 +35,10 @@ main = do
 	listaPuntajeJugadoresMVar <- newEmptyMVar
 	putMVar listaPuntajeJugadoresMVar listaPuntajeJugadores
 
-	-- Listas de Concumones Libres
-	let listaIdConcumonesLibres = take (maxConcumones) (repeat True)	
-	listaIdConcumonesLibresMvar <- newEmptyMVar
-	putMVar listaIdConcumonesLibresMvar listaIdConcumonesLibres
+	-- Listas de Estado Concumon { 0 Free, 1 Live, 2 Dead}
+	let estadoConumones = take (maxConcumones) (repeat 0)	
+	estadoConumonesMvar <- newEmptyMVar
+	putMVar estadoConumonesMvar estadoConumones
 
 	putStrLn("Parametros: ")
 	putStrLn("Dimension X: " ++ show(xDim))
@@ -60,8 +57,8 @@ main = do
 
 	idAdminJugadores <- forkIO (AdminJugadores.run cantJugadores connectionChan)
 	idServidor <- forkIO (Servidor.run cantJugadores connectionChan mapaChan maxJugadoresSem listaIdJugadoresLibresMVar)
-	idNido <- forkIO (Nido.run maxConcumonesSem tiempoMovConcumon mapaChan listaIdConcumonesLibresMvar)
-	idMapa <- forkIO (Mapa.run xDim yDim mapaChan listaPuntajeJugadoresMVar)
+	idNido <- forkIO (Nido.run maxConcumonesSem tiempoMovConcumon mapaChan estadoConumonesMvar)
+	idMapa <- forkIO (Mapa.run xDim yDim mapaChan listaPuntajeJugadoresMVar estadoConumonesMvar)
 	idSysadmin <- forkIO (Sysadmin.run listaPuntajeJugadoresMVar)
 
 

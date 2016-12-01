@@ -8,21 +8,21 @@ import UtilList
 
 import Concumon
 
-run :: QSem -> Int -> Chan (Bool, Bool, Int, QSem) -> MVar([Bool]) -> IO ()
-run maxConcumonesSem tiempoMovConcumon mapaChan listaIdConcumonesLibresMvar = do
+run :: QSem -> Int -> Chan (Bool, Bool, Int, QSem) -> MVar([Int]) -> IO ()
+run maxConcumonesSem tiempoMovConcumon mapaChan estadoConcumonesMvar = do
 	putStrLn ("Corriendo Nido")
 	-- TODO: Ver si esta bien con forever, o usar otra cosa
 	forever $ do
 		waitQSem maxConcumonesSem
 		putStrLn "Creando concumon"
 
-		-- Actualizo Lista de Concumones Libres - Asigno ID
-		listaIdConcumonesLibres <- takeMVar listaIdConcumonesLibresMvar
-		let idConcumon = UtilList.getIndexOfFirstBoolEqualTo listaIdConcumonesLibres True
-		let newListaIdConcumonesLibres = UtilList.safeReplaceElement listaIdConcumonesLibres idConcumon False
-		putMVar listaIdConcumonesLibresMvar newListaIdConcumonesLibres
+		-- Actualizo Lista de Concumones Libres - Asigno ID  { 0 Free, 1 Live, 2 Dead}
+		estadoConcumones <- takeMVar estadoConcumonesMvar
+		let idConcumon = UtilList.getIndexOfFirstIntEqualTo estadoConcumones 0
+		let newEstadoConcumones = UtilList.safeReplaceElement estadoConcumones idConcumon 1
+		putMVar estadoConcumonesMvar newEstadoConcumones
 
 
-		idConcumon <- forkIO(Concumon.run maxConcumonesSem tiempoMovConcumon mapaChan idConcumon listaIdConcumonesLibresMvar)
+		idConcumon <- forkIO(Concumon.run maxConcumonesSem tiempoMovConcumon mapaChan idConcumon estadoConcumonesMvar)
 		threadDelay	1000000
 	putStrLn "Finalizando Nido"

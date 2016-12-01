@@ -1,11 +1,13 @@
 module UtilList
     ( UtilList.safeReplaceElement,
       UtilList.getIndexOfFirstBoolEqualTo,
+      UtilList.getIndexOfFirstIntEqualTo,
       UtilList.updateConcurrentList
     ) where
 
 import Control.Monad
 import Control.Concurrent
+
 
 updateConcurrentList :: MVar([a]) -> Int -> a -> IO()
 updateConcurrentList mVar index value = do
@@ -15,6 +17,20 @@ updateConcurrentList mVar index value = do
 
 getIndexOfFirstBoolEqualTo :: [Bool] ->  Bool ->  Int
 getIndexOfFirstBoolEqualTo list value = do
+	let listSize = length list
+	let indexList = take listSize (iterate (1+) 0)
+	let auxList = zip indexList list
+	let filterList = filter ((==value).snd) auxList
+	
+	if null filterList 
+		then -1
+		else	
+			fst (head filterList)
+
+
+
+getIndexOfFirstIntEqualTo :: [Int] ->  Int ->  Int
+getIndexOfFirstIntEqualTo list value = do
 	let listSize = length list
 	let indexList = take listSize (iterate (1+) 0)
 	let auxList = zip indexList list
