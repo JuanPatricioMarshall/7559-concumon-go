@@ -4,7 +4,8 @@ module UtilList
       UtilList.getIndexOfFirstIntEqualTo,
       UtilList.updateConcurrentList,
       UtilList.getAdyacents,
-      UtilList.getAdyacentPosition
+      UtilList.getAdyacentPosition,
+      UtilList.getMapCoordinates
     ) where
 
 import Control.Monad
@@ -151,3 +152,6 @@ getAdyacentPosition i j rows columns =
 	 then i * columns + j
 	else
 	 -1
+
+getMapCoordinates :: Int -> Int -> Int -> (Int, Int)
+getMapCoordinates pos rows cols = (pos `div` rows, pos `mod` cols)
