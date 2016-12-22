@@ -21,7 +21,6 @@ run cantJugadores connectionChan mapaChan maxJugadoresSem listaIdJugadoresLibres
 		let newListaIdJugadoresLibres = UtilList.safeReplaceElement listaIdJugadoresLibres idJugador False
 		putMVar listaIdJugadoresLibresMVar newListaIdJugadoresLibres
 
-		putStrLn line
 		putStrLn ("Server: Agregando nuevo jugador.")
 		forkIO(Jugador.run mapaChan maxJugadoresSem idJugador listaIdJugadoresLibresMVar puntosJugadores)
 	putStrLn "Finalizando servidor"

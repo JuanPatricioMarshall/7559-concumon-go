@@ -18,7 +18,7 @@ loginNPlayer n connectionChan = do
 			return ()
 		else do
 				threadDelay	1000000
-				putStrLn ("Logueando Jugador " ++ show (n))
+				putStrLn ("Logueando nuevo jugador. Jugadores restantes " ++ show (n))
 				writeChan connectionChan "Logueando nuevo jugador."
 				loginNPlayer (n-1) connectionChan
 

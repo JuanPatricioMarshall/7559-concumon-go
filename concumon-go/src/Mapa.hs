@@ -147,7 +147,7 @@ moverConcumon mapas rows cols idConcumon = do
 	if null casillaConcumon
 		then do
 			putStrLn("No se encontro al concumon en el mapa")
-			return mapas --No se encontro al jugador en el mapaConc
+			return mapas --No se encontro al concumon en el mapaConc
 		else do
 			let posicionConcumon = head casillaConcumon
 			let adyacentes = UtilList.getAdyacents posicionConcumon rows cols
