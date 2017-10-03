@@ -6,11 +6,21 @@ import Control.Concurrent
 import Control.Monad
 
 run :: Int -> Chan String -> IO ()
--- Hacer logueo de los Jugadores en un loop
 run cantJugadores connectionChan = do
 	putStrLn ("Corriendo AdminJugadores")
 	putStrLn ("Cant jugadores: " ++ (show cantJugadores))
-	forever $ do
-		putStrLn ("Logueando nuevo jugador.")
-		threadDelay	5000000
-		writeChan connectionChan "Hola, entre. Soy jugador nuevo"
+	loginNPlayer cantJugadores connectionChan
+
+loginNPlayer :: Int -> Chan String -> IO()
+loginNPlayer n connectionChan = do
+	if n == 0
+		then do
+			return ()
+		else do
+				threadDelay	1000000
+				putStrLn ("Logueando nuevo jugador. Jugadores restantes " ++ show (n))
+				writeChan connectionChan "Logueando nuevo jugador."
+				loginNPlayer (n-1) connectionChan
+
+
+  	

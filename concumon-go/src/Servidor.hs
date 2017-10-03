@@ -6,18 +6,21 @@ import Control.Concurrent
 import Control.Monad
 
 import Jugador
+import UtilList
 
-run :: Int -> Chan String -> Chan movimiento -> QSem ->  IO ()
-run cantJugadores connectionChan movesChan jugadoresSem = do
+run :: Int -> Chan String -> Chan (Int, Bool, Int, QSem) -> QSem -> MVar([Bool]) -> MVar([Int]) -> IO ()
+run cantJugadores connectionChan mapaChan maxJugadoresSem listaIdJugadoresLibresMVar puntosJugadores = do
 	putStrLn ("Corriendo Servidor")
-	putStrLn ("Cant jugadores: " ++ (show cantJugadores))
-	putStrLn ("Agregando jugadores al juego.")
-	forever $ do
-		-- TODO: Leer datos de jugador de pipe
+	forever $ do		
+		waitQSem maxJugadoresSem
 		line <- readChan connectionChan
-		waitQSem jugadoresSem
-		putStrLn line
-		putStrLn ("Agregando nuevo jugador.")
-		idJugador <- forkIO(Jugador.run movesChan jugadoresSem)
-		threadDelay	5000000
-	putStrLn "Finalizando Servidor"
+
+		-- Actualizo Lista de Jugadores Libres - Asigno ID
+		listaIdJugadoresLibres <- takeMVar listaIdJugadoresLibresMVar
+		let idJugador = UtilList.getIndexOfFirstBoolEqualTo listaIdJugadoresLibres True
+		let newListaIdJugadoresLibres = UtilList.safeReplaceElement listaIdJugadoresLibres idJugador False
+		putMVar listaIdJugadoresLibresMVar newListaIdJugadoresLibres
+
+		putStrLn ("Server: Agregando nuevo jugador.")
+		forkIO(Jugador.run mapaChan maxJugadoresSem idJugador listaIdJugadoresLibresMVar puntosJugadores)
+	putStrLn "Finalizando servidor"

@@ -4,15 +4,25 @@ module Nido
 
 import Control.Concurrent
 import Control.Monad
+import UtilList
 
 import Concumon
 
-run :: Int -> Chan movimiento -> IO ()
-run tiempoMovConcumon movesChan = do
+run :: QSem -> Int -> Chan (Int, Bool, Int, QSem) -> MVar([Int]) -> IO ()
+run maxConcumonesSem tiempoMovConcumon mapaChan estadoConcumonesMvar = do
 	putStrLn ("Corriendo Nido")
 	-- TODO: Ver si esta bien con forever, o usar otra cosa
 	forever $ do
-		putStrLn "Creando concumon"
-		idConcumon <- forkIO(Concumon.run tiempoMovConcumon movesChan)
-		threadDelay	5000000
+		waitQSem maxConcumonesSem
+		putStrLn "Nido: Creando concumon"
+
+		-- Actualizo Lista de Concumones Libres - Asigno ID  { 0 Free, 1 Live, 2 Dead}
+		estadoConcumones <- takeMVar estadoConcumonesMvar
+		let idConcumon = UtilList.getIndexOfFirstIntEqualTo estadoConcumones 0
+		let newEstadoConcumones = UtilList.safeReplaceElement estadoConcumones idConcumon 1
+		putMVar estadoConcumonesMvar newEstadoConcumones
+
+
+		idConcumon <- forkIO(Concumon.run maxConcumonesSem tiempoMovConcumon mapaChan idConcumon estadoConcumonesMvar)
+		threadDelay	1000000
 	putStrLn "Finalizando Nido"
